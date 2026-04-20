@@ -15,6 +15,11 @@ tags: [meta]
 ## Entities
 <!-- Alphabetical within section -->
 
+- [[entities/VMj-3S1tku0]] — Building micrograd: backpropagation and autograd from scratch
+- [[entities/7xTGNNLPyMI]] — Deep Dive: how LLMs are trained (pre-training + alignment)
+- [[entities/EWvNQjAaOHw]] — How I use LLMs: practical ChatGPT usage guide
+- [[entities/zjkBMFhNj_g]] — Intro to LLMs: token prediction, emergent behaviors
+
 ## Concepts
 - [[karpathy-llm-wiki]] — karpathy gist: LLM Wiki pattern, wiki as persistent compounding artifact, schema as agent config, query answers filed back as pages
 - [[tum-office-runtime-fix]] — Tum Office runtime port conflict fix: systemd services fighting over port 19011, OpenRouter migration, correct workspace path

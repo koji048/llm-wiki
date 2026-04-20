@@ -22,3 +22,9 @@ tags: [meta]
 - Created concepts/tum-office-runtime-fix.md documenting the port conflict, systemd services, and OpenRouter migration
 - Also pushed to github.com/koji048/tum-office (new private repo)
 - Related: concepts/tum-office-runtime-fix
+
+## [2026-04-20] ingest | 4 Karpathy video transcripts processed
+- Ingested from raw/transcripts/ (4 .txt files, VTT format cleaned)
+- Created entities: VMj-3S1tku0, 7xTGNNLPyMI, EWvNQjAaOHw, zjkBMFhNj_g
+- Updated index.md with 4 new entity pages
+- Source: YouTube auto-generated captions via yt-dlp
