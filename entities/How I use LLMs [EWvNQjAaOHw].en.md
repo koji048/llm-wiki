@@ -1,130 +1,113 @@
-# How I use LLMs [EWvNQjAaOHw].en
+# How I use LLMs
 
 ---
-title: "How I Use LLMs - Practical Guide to ChatGPT and the LLM Ecosystem"
-created: 2025-02-27
+title: "How I use LLMs"
+created: 2026-04-20
 type: entity
-tags:
-  - llm
-  - chatgpt
-  - claude
-  - gemini
-  - grok
-  - perplexity
-  - cursor
-  - prompt-engineering
-  - multimodal
-  - reasoning-models
-  - tool-use
-  - practical-guide
-  - karpathy
-sources:
-  - raw_transcript.txt
+tags: [llm, chatgpt, claude, karpathy, practical-ai]
+sources: [raw/transcripts/How I use LLMs [EWvNQjAaOHw].en.txt]
 ---
 
-# How I Use LLMs - Practical Guide to ChatGPT and the LLM Ecosystem
+# How I use LLMs
 
 ## Summary
 
-This comprehensive guide walks through the practical use of Large Language Models (LLMs), with ChatGPT as the primary example but covering the broader ecosystem including Claude, Gemini, Grok, DeepSeek, Mistral, and Perplexity. The presenter characterizes an LLM memorably as "a one terabyte zip file" of compressed internet knowledge with a personality programmed by human labelers, emphasizing two distinct training phases: pre-training (knowledge compression) and post-training (conversational behavior).
+Andrej Karpathy's "How I use LLMs" is the practical companion to his "Deep Dive into LLMs" video, walking through real-world workflows across the 2025 LLM product ecosystem: ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google), Grok (xAI), DeepSeek, Le Chat (Mistral), Meta AI, Copilot, and Perplexity. He grounds everything in a consistent mental model: an LLM is a ~1TB "lossy zip file" of the internet (roughly one trillion parameters, ~$10M+ and ~3 months to pre-train), wrapped in a post-training "assistant persona" from human labelers, operating on a 1D token stream with a vocabulary around 200,000 tokens (GPT-4o) and a context window that serves as fragile "working memory."
 
-The guide establishes a systematic framework for navigating the LLM landscape, covering: (1) **model selection and pricing tiers** (free vs. $20 Plus vs. $200 Pro), where larger models provide more world knowledge, creativity, and accuracy while smaller models carry higher hallucination risk; (2) **thinking/reasoning models** trained via reinforcement learning (OpenAI's O-series, DeepSeek R1) that excel at math, code, and logic at the cost of longer response times; (3) **tool integration** including internet search, Python interpreters, and deep research capabilities that break the model beyond its training cutoff; (4) **multimodality** distinguishing native audio/vision processing from "fake" preprocessing approaches; and (5) **quality-of-life features** like memory, custom instructions, and custom GPTs.
+The video systematically tours: pricing tiers (Free / Plus $20 / Pro $200); thinking models trained via RL (o1, o3-mini, o1-pro, DeepSeek R1 from the "Incentivizing Reasoning Capabilities" paper); tool use including internet search, Python interpreter, and ChatGPT's Advanced Data Analysis; document upload (demoed with the Arc Institute's Evo 2 paper and Adam Smith's *Wealth of Nations*); Claude Artifacts for bespoke apps and Mermaid diagrams; Deep Research (ChatGPT, Perplexity, Grok Deep Search); and Cursor/Composer for "vibe coding" (a term Karpathy claims to have coined).
 
-Practical demonstrations span knowledge queries, debugging with reasoning models, deep research into supplements, document/book analysis as a reading companion, data analysis with Python, Claude Artifacts for building custom apps (flashcards), professional "vibe coding" in Cursor, voice mode conversations, image interpretation (nutrition labels, blood tests, memes), image generation via DALL-E, and sophisticated custom GPTs for Korean translation with OCR. The overarching theme is that context windows are precious "working memory," outputs should always be verified, and users should adopt a toolkit mentality—using different platforms for their specialized strengths rather than defaulting to one.
+He then surveys multimodality: "fake audio" via SuperWhisper/WhisperFlow/MacWhisper transcription, "true audio" via spectrogram tokenization in ChatGPT Advanced Voice and Grok's unhinged/romantic/conspiracy voice modes, NotebookLM's "Deep Dive" podcasts (he produced a Spotify series "Histories of Mysteries"), image inputs (nutrition labels, blood tests, memes, math), DALL-E 3 and Ideogram for generation, Veo 2 for video, and mobile-only video input via Advanced Voice. He closes with quality-of-life features—Memory, Custom Instructions, Custom GPTs (his Korean vocabulary extractor, detailed translator, and Korean Cap OCR tool)—emphasizing **few-shot prompting with XML-delimited examples** as a universally accuracy-boosting technique.
 
 ## Key Concepts
 
-- **Token Stream**: The fundamental unit of LLM interaction; chat interfaces hide a collaborative sequential token stream between user and model.
-- **Pre-training vs. Post-training**: Pre-training compresses internet knowledge into parameters (expensive, infrequent); post-training shapes the assistant personality via human labelers.
-- **Context Window**: The model's "working memory" where tokens accumulate; best practice is to start fresh chats when switching topics.
-- **Thinking Models**: Models trained with reinforcement learning to emit internal reasoning before answering, excelling at complex problems.
-- **Tool Use**: Models emit special tokens to invoke external capabilities (web search, Python execution, image generation).
-- **Deep Research**: Extended multi-minute research combining thinking and web search to produce cited reports.
-- **Artifacts (Claude)**: Interactive React apps rendered in-browser, enabling on-demand custom tool creation.
-- **Vibe Coding**: Natural-language driven code generation using autonomous agents like Cursor's Composer.
-- **Native vs. Tacked-on Multimodality**: Models processing audio/image tokens directly vs. piping through separate speech-to-text or captioning models.
-- **Few-shot Prompting**: Providing structured examples (often in XML-like tags) to teach the model desired behavior, mirroring human learning.
-- **Custom GPTs**: Saved prompt templates for repeated specialized tasks (e.g., Korean language learning, OCR translation).
-- **Memory**: Persistent user information across conversations for personalization.
+- **The 1TB Zip File Mental Model**: An LLM is ~1 trillion parameters compressing a snapshot of the internet into a probabilistic, lossy file. Pre-training is expensive and infrequent, creating a **knowledge cutoff**; by default the model has no calculator, browser, or Python—just token-in, token-out.
+
+- **Context Window as Working Memory**: The token stream visible to the model is a precious resource. Starting a new chat wipes it; cluttering it distracts the model and slows generation. Karpathy advises starting fresh chats per topic.
+
+- **Pre-training vs. Post-training**: Pre-training compresses the internet (knowledge); post-training "attaches a smiley face"—conversations labeled by humans teach assistant persona and format.
+
+- **Thinking Models**: A third training stage using RL on math/code problems where models discover inner-monologue strategies (backtracking, revisiting assumptions). Introduced publicly by the DeepSeek paper "Incentivizing Reasoning Capabilities in LLMs via Reinforcement Learning." OpenAI's "o" series (o1, o3-mini, o1-pro) and DeepSeek R1 are examples; Perplexity exposes raw R1 traces while OpenAI shows only summaries.
+
+- **Tool Use**: Models emit special tokens that trigger external execution—internet search, Python interpreter, Advanced Data Analysis. Karpathy demonstrates Grok 3 hallucinating a large multiplication ("060" instead of "120"), Claude using JavaScript, and Gemini silently failing, while ChatGPT correctly invokes Python.
+
+- **Deep Research**: Extended search + thinking over tens of minutes producing citation-rich reports. ChatGPT's version (Pro tier) is Karpathy's favorite after 10–20 uses; Perplexity and Grok Deep Search produce shorter reports. Still hallucinates (his LLM-labs table omitted xAI, wrongly included Hugging Face and EleutherAI).
+
+- **Artifacts (Claude)**: Claude writes React code that runs live in-browser, enabling bespoke custom apps (he built a 20-card flashcard app on Adam Smith) and Mermaid-library diagrams of book chapters.
+
+- **Vibe Coding & Cursor Composer**: Cursor (using Claude 3.7 Sonnet under the hood) with Cmd+I launches an autonomous agent across files. Karpathy built a Tic-Tac-Toe React app in ~5 sentences, then added `react-confetti` and a victory.mp3 via natural-language requests.
+
+- **Fake vs. True Audio**: "Fake audio" is STT/TTS wrapped around a text LLM (SuperWhisper, WhisperFlow, MacWhisper). "True audio" tokenizes spectrogram chunks into a ~100k vocabulary the model natively processes (ChatGPT Advanced Voice, Grok voice mode).
+
+- **Memory, Custom Instructions, Custom GPTs**: Persistent user database prepended to chats (ChatGPT-unique); global tone/role settings; reusable prompt templates. Few-shot examples with XML tags dramatically improve accuracy.
+
+- **Native Multimodality**: Transformers model token streams agnostically—images as ~100k-patch vocab, audio as spectrogram tokens. Distinguish native Omni models from tacked-on pipelines (e.g., ChatGPT's image generation actually routes a caption to DALL-E 3).
 
 ## Major Sections
 
-### Part 1: Foundations and Core Capabilities
-1. **Introduction to ChatGPT and the LLM Ecosystem** – Major providers, leaderboards (Chatbot Arena, SEAL)
-2. **Architecture: Tokens, the "1TB Zip File," and Training Phases**
-3. **Model Selection and Pricing Tiers** – Free / Plus ($20) / Pro ($200)
-4. **Knowledge Queries and Context Window Hygiene**
-5. **Thinking Models** – O-series, DeepSeek R1, debugging example
-6. **Internet Search Integration** – Breaking the training cutoff
-7. **Deep Research** – Multi-source report generation
-8. **Document Analysis and Reading as a Companion**
+### Introduction and LLM Landscape
+Overview of ChatGPT as 2022 incumbent, competitors (Gemini, Meta AI, Copilot, Claude, Grok, DeepSeek, Le Chat), and leaderboards (Chatbot Arena, SEAL). TikTokenizer demo shows a 15+19-token haiku exchange rendering as 42 tokens in GPT-4o's ~200k vocabulary.
 
-### Part 2: Tools, Code, and Multimodality
-9. **Python Interpreter Integration and Cross-Model Differences**
-10. **Advanced Data Analysis** (OpenAI valuation example with pitfalls)
-11. **Claude Artifacts** – Custom flashcard app from Wikipedia
-12. **Cursor IDE and "Vibe Coding"** – Tic-tac-toe enhancement
-13. **Speech: Fake vs. True Audio**
-14. **Advanced Voice Mode and Visual Input**
-15. **Image and Video Generation**
-16. **Memory, Custom Instructions, and Custom GPTs**
+### Pre-training & Post-training Mental Model
+The 1TB zip file analogy; knowledge cutoff; appropriate low-stakes use cases (caffeine in an Americano at ~63mg; checking NyQuil ingredients against the physical box).
 
-### Part 3: Advanced Customization and Framework
-17. **Custom Korean Translation GPT with Few-shot Prompting**
-18. **OCR + Translation GPT**
-19. **Competitive Landscape Analysis**
-20. **Five-Dimension Framework for LLM Application Choice**
+### Model Tiers and Thinking Models
+ChatGPT Free/Plus ($20)/Pro ($200); Karpathy's "LLM Council" of Claude, Gemini, Grok (all recommended Zermatt). DeepSeek R1 paper introduces RL-based reasoning. Demo: a gradient-check bug in an MLP that GPT-4o fails, o1 Pro solves in ~1 minute, Claude 3.5 Sonnet and Gemini solve without thinking mode, Grok 3 solves, Perplexity R1 catches the "critical mistake" in parameter packing.
+
+### Internet Search & Deep Research
+White Lotus S3E2 release date as motivator. Claude lacks search (cutoff April 2024); Gemini 2.0 Pro Experimental lacks it, Flash has it. Deep Research demo on Ca-AKG (2.5g in Brian Johnson's Blueprint Longevity Mix).
+
+### Document Upload
+Evo 2 biological foundation model PDF (from Arc Institute, trained on OpenGenome 2); Claude 3.7 release during filming. Reading *Wealth of Nations* chapter-by-chapter via Project Gutenberg text pasted into Claude—"don't read books alone."
+
+### Python Tool Use & Advanced Data Analysis
+Cross-model multiplication test. OpenAI valuation plotting reveals ChatGPT silently substituted 0.1 for missing 2015 data and hallucinated a $1.7T extrapolation while code output was ~$20T—"a very very junior data analyst."
+
+### Claude Artifacts
+20 flashcards on Adam Smith rendered as a live React app; Mermaid diagrams of *Wealth of Nations* Chapter 3 (division of labor and extent of the market).
+
+### Cursor, Composer & Vibe Coding
+Tic-Tac-Toe app built in ~1 minute; Composer installs libraries and downloads assets autonomously.
+
+### Voice Modalities
+~50% voice on desktop, ~80% on mobile. ChatGPT Advanced Voice does Yoda/pirate but refuses a fox sound after doing a cow ("very cringe"). Grok's unhinged/romantic/conspiracy modes ("Trudeau/Castro lovechild," "lizard people," "the queen is a robot").
+
+### NotebookLM
+Generated ~30-minute Deep Dive podcast on the Evo 2 paper. Karpathy produced "Histories of Mysteries" on Spotify.
+
+### Image, Video, and Generation
+Brian Johnson's Longevity Mix nutrition label (transcribe-then-analyze); 20-page blood test PDF; Colgate toothpaste ingredient safety; crow "attempted murder" meme. DALL-E 3 vs. Ideogram (used for his "Let's reproduce GPT-2" thumbnail). Advanced Voice video input: acoustic foam, Genghis Khan book, Feynman book, Aranet4 CO2 monitor (713 PPM), Middle Earth map. Veo 2 as near state-of-the-art video generator.
+
+### Quality of Life: Memory, Custom Instructions, Custom GPTs
+Memory stores cross-chat preferences ("1990s–early 2000s was peak Hollywood"). Custom instructions avoid HR-speak; set Korean formality level. Custom GPTs: Korean Vocabulary Extractor, Korean Detailed Translator (beats Google Translate, Naver, Papago), Korean Cap (OCR + translate + grammar breakdown for Singles Inferno screenshots).
+
+### Final Ecosystem Summary
+Checklist: model/tier awareness, reasoning models, tools, multimodality (native vs. tacked-on), QoL features, web vs. mobile parity.
 
 ## Key Takeaways
 
-1. **Know which model you're talking to**: Pricing tiers dramatically affect capability; default to the best model you can afford for important tasks.
-2. **Context windows are precious**: Start new chats when switching topics to avoid token waste and distraction.
-3. **Escalate to thinking models for hard problems**: Math, code, and complex logic benefit from reasoning models despite longer wait times.
-4. **Use tools, don't trust memory alone**: Internet search, Python interpreters, and deep research extend models beyond their training cutoff.
-5. **Always verify critical outputs**: LLMs hallucinate even in deep research; treat outputs as first drafts.
-6. **Leverage specialized platforms**: Perplexity for search, Claude Artifacts for apps, Cursor for coding, ChatGPT as default.
-7. **Never read alone**: Use LLMs as reading companions for dense historical or cross-disciplinary texts.
-8. **Prefer native multimodality**: Native audio/vision processing outperforms tacked-on preprocessing pipelines.
-9. **Few-shot examples beat verbal instructions**: Structure custom GPTs with concrete examples, mirroring how humans learn.
-10. **Maintain a toolkit mentality**: Different apps excel at different tasks; don't commit to a single platform.
+- Treat every LLM as a ~1TB lossy zip file with a knowledge cutoff; use tools (search, Python) when information is recent, high-precision, or computational.
+- Keep context windows lean—start new chats per topic; tokens are working memory.
+- Know your tier and model. Free tiers run smaller, hallucination-prone models (GPT-4o mini, Claude Haiku); Karpathy pays for ChatGPT Pro ($200) and Claude Professional.
+- Default to fast non-thinking models; escalate to thinking models (o1 Pro, R1, Claude extended thinking) only for hard math/code.
+- ChatGPT Advanced Data Analysis and code outputs require code-literate scrutiny—it will silently substitute values and misreport numbers.
+- Don't read dense books alone: paste chapters into Claude, ask for summaries first, then question as you read (he did this with *Wealth of Nations*).
+- Cursor + Composer enables "vibe coding"—Karpathy claims to have coined the term.
+- Use voice everywhere: SuperWhisper for system-wide STT; ChatGPT mobile for Advanced Voice; Grok for uncensored roleplay.
+- Screenshot workflow (Mac: Ctrl+Shift+Cmd+4 → Cmd+V) is Karpathy's go-to for feeding labels, math, blood tests, and memes into ChatGPT.
+- Few-shot prompts with XML-delimited examples consistently boost accuracy—use them in Custom GPTs.
+- ChatGPT image generation is a tacked-on pipeline (caption → DALL-E 3), not native.
+- Karpathy's personal stack: Perplexity for search, Claude Artifacts for prototyping/diagrams, ChatGPT Advanced Voice for conversation, Grok when other models are too restrictive, Cursor for professional coding.
 
-## Notable Quotes and Examples
+## Notable Quotes
 
-> "Hi I'm ChatGPT. I am a one terabyte zip file. My knowledge comes from the internet which I read in its entirety about six months ago and I only remember vaguely. My winning personality was programmed by example by human labelers at OpenAI."
+> "Hi, I'm ChatGPT, I am a one-terabyte zip file. My knowledge comes from the internet which I read in its entirety about six months ago and I only remember vaguely. My winning personality was programmed by example by human labelers at OpenAI."
 
-> "I think ChatGPT by far is a very good default and the incumbent and most feature [rich]."
+> "Don't read books alone."
 
-> "I guess I like this example because number one it shows the power of the tool... but number two it shows the trickiness of it... so really powerful but also be careful with this."
+> "It's a very very junior data analyst."
 
-**Notable Examples:**
-- **Debugging**: GPT-4o failed to catch a code bug; O1 Pro diagnosed it in one minute.
-- **Deep Research on Ca-AKG**: Multi-source report on supplement efficacy, mechanisms, and safety.
-- **OpenAI Valuation Analysis**: Python-generated visualization revealed implicit assumptions (N/A → $100M) and inconsistent outputs ($1.7T claimed vs. $20T calculated).
-- **Custom Flashcard App**: Built in Claude Artifacts from Adam Smith Wikipedia content.
-- **Tic-tac-toe Enhancement**: Added confetti, sound, and styling via Cursor Composer natural language.
-- **Korean Translation GPT**: Uses XML-tagged few-shot examples for nuanced translation with grammar breakdowns.
+> "Don't type stuff out, use voice, it works quite well."
 
 ## Related Entities
 
-- [[ChatGPT]]
-- [[Claude]] / [[Anthropic]]
-- [[Gemini]] / [[Google DeepMind]]
-- [[Grok]] / [[xAI]]
-- [[DeepSeek R1]]
-- [[Mistral]]
-- [[Perplexity]]
-- [[Cursor IDE]]
-- [[OpenAI O-series (Reasoning Models)]]
-- [[Chatbot Arena]]
-- [[Pre-training]]
-- [[Post-training / RLHF]]
-- [[Reinforcement Learning for Reasoning]]
-- [[Tool Use in LLMs]]
-- [[Tokenization]]
-- [[Context Window]]
-- [[Multimodal Models]]
-- [[DALL-E 3]]
-- [[Super Whisper]]
-- [[Few-shot Prompting]]
-- [[Custom GPTs]]
-- [[Andrej Karpathy]]
+[[ChatGPT]], [[Claude (Anthropic)]], [[Grok (xAI)]], [[Gemini (Google)]], [[Perplexity]], [[DeepSeek R1]], [[Cursor]], [[NotebookLM]], [[Andrej Karpathy]], [[Evo 2 / Arc Institute]], [[SuperWhisper]], [[DALL-E 3]], [[Veo 2]], [[Mermaid Diagrams]], [[Vibe Coding]]

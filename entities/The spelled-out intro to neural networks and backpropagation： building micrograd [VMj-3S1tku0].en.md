@@ -1,138 +1,86 @@
-# The spelled-out intro to neural networks and backpropagation： building micrograd [VMj-3S1tku0].en
+# The spelled-out intro to neural networks and backpropagation： building micrograd
 
 ---
-title: "Micrograd: Building Neural Networks from Scratch"
-created: 2025-01-15
+title: "The spelled-out intro to neural networks and backpropagation: building micrograd"
+created: 2026-04-20
 type: entity
-tags:
-  - micrograd
-  - neural-networks
-  - backpropagation
-  - autograd
-  - automatic-differentiation
-  - pytorch
-  - chain-rule
-  - gradient-descent
-  - karpathy
-  - deep-learning
-  - mlp
-  - tutorial
-sources:
-  - raw_transcript.txt
+tags: [neural-networks, backpropagation, autograd, micrograd, pytorch]
+sources: [raw/transcripts/The spelled-out intro to neural networks and backpropagation： building micrograd [VMj-3S1tku0].en.txt]
 ---
 
-# Micrograd: Building Neural Networks from Scratch
+# The spelled-out intro to neural networks and backpropagation: building micrograd
 
 ## Summary
+Andrej Karpathy delivers a from-scratch lecture building **micrograd**, his ~150-line autograd library (engine.py ~100 lines, nn.py the small neural net library). Starting in a blank Jupyter notebook, he constructs a scalar-valued `Value` class that records a computational DAG via `_prev` (children), `_op` (operation label), `data`, `grad`, and a `_backward` closure. He derives backpropagation as "a recursive application of chain rule backwards through the computation graph," first manually through expressions like `L = d*f` where `d = a*b + c`, then automates it via topological sort and a `.backward()` method.
 
-This wiki entry documents Andrej Karpathy's foundational tutorial on **micrograd**, a minimal scalar-valued automatic differentiation engine that demonstrates the core principles of neural network training. The tutorial spans the complete journey from understanding derivatives at the most fundamental level to implementing a working multi-layer perceptron (MLP) with full backpropagation support, and finally comparing the implementation to production-grade frameworks like PyTorch.
+The lecture develops operations incrementally — addition, multiplication, `tanh` (as a single op), then `exp`, `__pow__` (using the power rule), division (as `x**-1`), subtraction, and `__rmul__` — and demonstrates that **granularity is arbitrary**: any operation works as long as you can express the local derivative. A critical bug is fixed by replacing `=` with `+=` in `_backward` (justified by the multivariate chain rule) so gradients accumulate when variables are reused. Karpathy then builds `Neuron`, `Layer`, and `MLP` classes mirroring PyTorch's API, trains a 41-parameter MLP on 4 examples using mean squared error loss, exhibits the classic "forgot to zero_grad" bug, and concludes by comparing micrograd line-for-line with PyTorch's tanh backward (buried in a `BinaryOpsKernel` after 2,800 search hits) and showing how to extend PyTorch with custom `autograd.Function` subclasses.
 
-The lecture begins by framing neural networks as mathematical expression graphs, where backpropagation efficiently computes gradients of a loss function with respect to network weights. Karpathy emphasizes that micrograd—at roughly 150 lines of Python code—contains everything fundamentally necessary to train neural networks; everything beyond it (tensors, GPU acceleration, optimized kernels) is purely about efficiency. The tutorial walks through manually computing derivatives using the chain rule, then automates the process by building a `Value` class that tracks computation graphs and propagates gradients via topological sorting.
-
-The implementation extends to a complete neural network library mirroring PyTorch's API: individual `Neuron` objects with weights, biases, and tanh activations; `Layer` objects containing multiple neurons; and `MLP` objects chaining layers together. A full training loop is demonstrated on a binary classification problem using mean squared error loss and gradient descent. Common pitfalls—particularly forgetting to zero gradients between iterations—are highlighted as illustrative bugs that beginners frequently encounter.
-
-The tutorial concludes by exploring PyTorch's actual production implementation of operations like tanh, revealing the layers of complexity (CPU/GPU kernels, multiple data types, complex number support) that production frameworks must handle. Karpathy also demonstrates how custom functions can be registered with PyTorch's autograd system, showing that the same principles taught with micrograd extend directly to industrial-scale deep learning frameworks.
+Throughout, Karpathy emphasizes that neural nets — even at GPT scale with hundreds of billions of parameters — are "just mathematical expressions" taking data and weights as input, producing a loss, and trained by gradient descent. The same principles scale; production frameworks (PyTorch, JAX) differ only by using n-dimensional tensors for parallelism and accumulating engineering complexity for device/type support.
 
 ## Key Concepts
-
-### Automatic Differentiation (Autograd)
-A technique for automatically computing derivatives of functions expressed as code. Micrograd implements reverse-mode autograd, the same approach used in PyTorch, TensorFlow, and JAX.
-
-### Backpropagation
-The algorithm that efficiently computes gradients of a scalar loss with respect to all parameters by applying the chain rule in reverse through a computation graph.
-
-### Computation Graph
-A directed acyclic graph (DAG) where nodes represent values and edges represent operations. Forward pass evaluates the graph; backward pass propagates gradients in reverse topological order.
-
-### Chain Rule
-The fundamental calculus rule enabling backpropagation: if z depends on y, and y depends on x, then `dz/dx = (dz/dy) × (dy/dx)`. Karpathy's intuitive analogy: if a car is twice as fast as a bicycle, and a bicycle is four times as fast as a walker, the car is 8× faster than the walker.
-
-### The Value Class
-Core abstraction wrapping a scalar with:
-- `data`: the numerical value
-- `grad`: gradient with respect to final output
-- `_prev`: child nodes that produced this value
-- `_op`: operation that created this value
-- `_backward`: function to propagate gradients locally
-
-### Gradient Accumulation
-Critical detail: gradients must use `+=` (not `=`) when a variable appears multiple times in an expression, otherwise contributions get overwritten.
-
-### Topological Sort
-Algorithm used to determine the order of `_backward()` calls, ensuring a node's gradient is fully accumulated before being propagated to its inputs.
-
-### Neuron
-Computes `tanh(Σ wᵢxᵢ + b)` where weights represent synaptic strengths and bias represents "trigger happiness."
-
-### Multi-Layer Perceptron (MLP)
-A sequence of fully-connected layers where each layer's output feeds into the next layer's input.
+- **Autograd engine**: Short for "automatic gradient"; a system that builds a computational graph during forward computation and automatically computes gradients via backpropagation. Micrograd implements this at scalar granularity for pedagogy; PyTorch and JAX do the same over tensors.
+- **Backpropagation**: A recursive application of the chain rule backward through the computational graph that efficiently evaluates the gradient of a loss with respect to all weights. Karpathy calls it "the mathematical core of any modern deep neural network library."
+- **Value class**: Micrograd's wrapper around a scalar holding `.data`, `.grad`, `_prev` (set of children), `_op` (operation string), `label`, and `_backward` (closure implementing local chain rule). Supports `+`, `*`, `tanh`, `exp`, `**k`, `/`, `-`, and reverse ops.
+- **Chain rule**: If `z` depends on `y` depends on `x`, then `dz/dx = (dz/dy)·(dy/dx)`. Intuition given via the car/bicycle/walker analogy — 2×4 = 8× faster. Local derivatives at each node are multiplied by the upstream gradient.
+- **Local derivative & operation behaviors**: A `+` node routes gradients unchanged to all children (local derivative = 1); a `*` node routes the *other* operand's data; `tanh` local derivative is `1 - t²`; `exp` local derivative equals the output itself; `x^k` uses the power rule `k·x^(k-1)`.
+- **Topological sort**: A DAG ordering such that every node appears after its dependencies. Built recursively with a `visited` set; backward pass iterates this list in reverse, calling each node's `_backward`.
+- **Gradient accumulation (+=)**: When a variable is used in multiple paths, gradients from each path must *sum* (multivariate chain rule). Using `=` instead of `+=` in `_backward` silently overwrites contributions — the bug surfaces in expressions like `a + a`.
+- **Neuron / Layer / MLP**: A `Neuron` computes `tanh(Σ w_i·x_i + b)` with random weights in [-1, 1] and a bias controlling "overall trigger happiness." A `Layer` is independent neurons sharing inputs. An `MLP` chains layers. The lecture's demo network has 41 parameters.
+- **Gradient descent update**: `p.data += -lr * p.grad` — the negative sign is essential because gradients point toward *increasing* loss. Learning rate tuning is described as "a subtle art": too small is slow, too large causes the loss to explode.
+- **zero_grad bug**: Because `_backward` uses `+=`, gradients persist across iterations unless explicitly reset to 0.0 before each backward pass. Karpathy cites this as mistake #3 in his "most common neural net mistakes" tweet.
+- **Scalar vs. tensor**: Micrograd operates on single scalars for clarity; PyTorch uses n-dimensional tensors (arrays of scalars) for parallelism and GPU efficiency. The underlying math is identical.
+- **Granularity is arbitrary**: You can implement `tanh` as one atomic op or decompose it into `exp`, `+`, `-`, `/`. Both produce identical forward values and leaf gradients, proving the abstraction level is a design choice.
 
 ## Major Sections
 
-### Part 1: Foundations (Introduction)
-- Introduction to micrograd philosophy
-- Mathematical definition of derivatives
-- Building the Value class
-- Manual chain rule application
-- Addition as gradient distributor
-- Multiplication's local derivatives
+### Introduction and Motivation (Section 1)
+Karpathy introduces micrograd, shows an example expression with inputs `a=-4, b=2` producing `g.data = 24.7`, calls `g.backward()` yielding `a.grad = 138, b.grad = 645`, and frames neural nets as just mathematical expressions from data+weights to a loss.
 
-### Part 2: Automation and Training (Middle)
-- Implementing chain rule for tanh
-- The gradient accumulation bug fix
-- Topological sort for automatic backpropagation
-- Extended operations (exp, power, division, subtraction)
-- PyTorch comparison and verification
-- Building Neuron, Layer, and MLP classes
-- Full training loop on binary classification
-- The zero_grad bug
+### Numerical Derivatives (Section 2)
+Using `f(x) = 3x² - 4x + 5`, he demonstrates derivatives via the limit definition with `h = 0.001`: slope is 14 at x=3, negative at x=-3, ~0 at the parabola's minimum. Extends to multivariable `d = a*b + c`.
 
-### Part 3: Production Comparison and Conclusion (End)
-- Exploring PyTorch's actual tanh kernels
-- CPU vs GPU implementation differences
-- Extending PyTorch via `torch.autograd.Function`
-- Custom functions as composable "lego blocks"
-- Course wrap-up and resources
+### Building the Value Class (Section 3)
+Implements `__add__`, `__mul__`, `__repr__`, and adds `_prev` (as a set), `_op`, and `label` attributes. Introduces a Graphviz-based `draw_dot` visualization with fake "op nodes" as circles between value rectangles.
+
+### Manual Backpropagation (Sections 4–6)
+With `L = d*f, d = e+c, e = a*b`, derives gradients by hand: `L.grad=1`, `f.grad=d.data=4`, `d.grad=f.data=-2`, `c.grad=e.grad=-2` (plus routes), `a.grad=6, b.grad=-4`. Verifies each via perturbation ("gradient check"). Demonstrates one optimization step moving L from -8 to -7.
+
+### Building a Neuron with tanh (Sections 6–7)
+Constructs a 2-input neuron `tanh(x1·w1 + x2·w2 + b)`, implements `.tanh()` on Value. With bias set to **6.8813735870...** for clean numbers, manually backpropagates: `o.grad=1`, `n.grad = 1-o² = 0.5`, and with `x1=2, x2=0, w1=-3, w2=1`: `w1.grad=1.0, w2.grad=0, x1.grad=-1.5, x2.grad=0.5`.
+
+### Automating Backward (Sections 8–9)
+Adds `_backward` closures to each operation, implements topological sort with a `visited` set, consolidates into a `.backward()` method on Value. Surfaces the `a + a` bug (produces grad=1 instead of 2) and fixes it by switching all `_backward` assignments to `+=`. Adds operand coercion for scalars and `__rmul__`.
+
+### Extending Operations (Section 10)
+Implements `exp`, `__pow__` (with int/float assertion and power rule), `__truediv__` as `self * other**-1`, and subtraction. Decomposes `tanh(n)` as `(e^(2n) - 1) / (e^(2n) + 1)` and verifies identical gradients.
+
+### PyTorch Parallel and NN Modules (Section 11)
+Reproduces the neuron in PyTorch using double-precision single-element tensors with `requires_grad=True`, confirming forward = **0.707** and gradients **0.5, 0, -1.5, 1.0**. Builds `Neuron`, `Layer`, `MLP` classes.
+
+### Training (Sections 12–14)
+Defines loss as `sum((yout - ygt)**2 for ygt, yout in zip(ys, ypred))`. Implements `parameters()` on all modules (41 params total). Manual gradient descent drops loss from 4.84 → 4.36 → ... → 7e-9. Builds training loop, discovers and fixes the zero_grad bug, summarizes neural nets as scaled-up versions of the same mechanism (noting GPT uses cross-entropy loss).
+
+### Micrograd Codebase and PyTorch Comparison (Section 15)
+Tours `engine.py` (Value with ReLU instead of tanh), `nn.py` (Neuron/Layer/MLP with Module parent class), and `demo.ipynb` (binary classification with batching, max-margin loss, L2 regularization, learning rate decay). Finds PyTorch's tanh backward in a `BinaryOpsKernel` (2,800 results, 406 files) with formula `a * (1 - b*b)` — identical math. Shows custom `torch.autograd.Function` extension.
 
 ## Key Takeaways
-
-1. **Neural networks are just mathematical expressions**—backpropagation is a general algorithm that doesn't fundamentally care about neural networks at all.
-2. **Micrograd's ~150 lines contain everything essential** for training neural networks; production frameworks add efficiency, not new fundamental ideas.
-3. **The chain rule is the workhorse** of deep learning—every operation just needs to know its local derivative to participate in backpropagation.
-4. **Addition distributes gradients** unchanged to its inputs; **multiplication swaps and scales** gradients by the other input's value.
-5. **Always use `+=` when accumulating gradients** to handle variables that appear multiple times in an expression.
-6. **Topological sorting** ensures correct gradient flow—a node's backward must run only after all its consumers have processed.
-7. **Forgetting to zero gradients** is one of the most common bugs in neural network training and can subtly destabilize learning.
-8. **The training loop is universal**: forward → loss → zero_grad → backward → parameter update.
-9. **The same principles scale**: from this scalar-valued engine to GPT-scale models with billions of parameters—only the architecture and efficiency change.
-10. **PyTorch can be extended** by subclassing `torch.autograd.Function` and providing forward/backward implementations.
+- Backpropagation is just the chain rule applied recursively backward through a DAG; understanding the gradient through a single node (especially `+`) is understanding all of backprop.
+- A `+` node routes gradients unchanged to all children; a `*` node swaps operands when propagating gradients.
+- Gradients must *accumulate* (`+=`, never `=`) to correctly handle variables used multiple times — a direct consequence of the multivariate chain rule.
+- Operation granularity is a free parameter: implement `tanh` atomically or decompose into `exp/+/−/÷` — results are identical as long as local derivatives are correct.
+- Always call `zero_grad` before `.backward()`; forgetting is one of the most common neural net bugs and only hides itself on trivially easy problems.
+- The gradient descent update is `p.data += -lr * p.grad`; the negative sign matters because the gradient points toward increasing loss.
+- Learning rate tuning is "a subtle art" — too small is slow, too large causes divergence because local gradient info breaks down over large steps.
+- Neural nets with billions or trillions of parameters (e.g., GPT) use the same mathematical machinery as this 41-parameter MLP — the differences are loss function (cross-entropy), optimizer refinements, and engineering scale.
+- Micrograd captures the essence of autograd in ~100 lines; PyTorch's complexity comes from tensor parallelism, device/dtype handling, and engineering — not from a different algorithm.
 
 ## Notable Quotes
-
-> "Micrograd is what you need to train neural networks; everything else is just efficiency."
-
-> "Neural networks are just mathematical expressions... backpropagation is significantly more general—it doesn't actually care about neural networks at all."
-
-> "The chain rule fundamentally is telling you how we chain these derivatives together correctly."
-
-> "As long as you can do the forward pass of this little function piece that you want to add and as long as you know the local derivative, the local gradients which are implemented in the backward, PyTorch will be able to back propagate through your function."
-
-## Notable Examples
-
-- **Chain rule analogy**: Car (2× bicycle speed) × Bicycle (4× walking speed) = Car is 8× walking speed.
-- **Single neuron computation**: `output = tanh(w₁x₁ + w₂x₂ + b)` with random weights initialized between -1 and 1.
-- **Binary classification training**: Demonstrating gradient descent on a small dataset using mean squared error loss.
-- **PyTorch verification**: Showing that micrograd's outputs match PyTorch's autograd exactly on identical computations.
+> "Backpropagation is a recursive application of chain rule backwards through the computation graph."
+> "If you understand the gradient for this node, you understand all of backpropagation and all of training of neural nets basically."
+> "A plus node literally just routes the gradient."
+> "We don't necessarily need to have the most atomic pieces — you can define operations at arbitrary granularity, as long as you know the local derivative."
+> "You forgot to zero_grad before .backward()."
+> "A massive blob of simulated neural tissue."
 
 ## Related Entities
-
-- **PyTorch** — Production-grade autograd framework with the same conceptual foundation
-- **Backpropagation** — The core algorithm implemented by micrograd
-- **Andrej Karpathy** — Creator of micrograd and instructor of the tutorial series
-- **Neural Networks: Zero to Hero** — The broader course series this lecture introduces
-- **Makemore** — Karpathy's follow-up tutorial building on micrograd concepts
-- **GPT / Transformers** — Large-scale models that operate on the same fundamental principles
-- **Chain Rule** — Foundational calculus concept enabling backpropagation
-- **Gradient Descent** — Optimization algorithm used to update parameters using computed gradients
-- **Multi-Layer Perceptron (MLP)** — Architecture built in this tutorial
-- **TensorFlow / JAX** — Alternative autograd frameworks using similar principles
+[[PyTorch]], [[JAX]], [[Multi-Layer Perceptron]], [[Chain Rule]], [[Gradient Descent]], [[Graphviz]], [[GPT]], [[Andrej Karpathy]], [[tanh activation]], [[ReLU]], [[Stochastic Gradient Descent]]

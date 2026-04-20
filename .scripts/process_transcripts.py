@@ -1,32 +1,30 @@
 #!/usr/bin/env python3
-import subprocess, json, os, sys, tempfile, math
+"""
+LLM Wiki transcript processor v2 — generates wiki entity pages from video transcripts.
+Uses Opus 4.7 for maximum depth and quality. Karpathy wiki style.
+"""
+import subprocess, json, os, sys, tempfile, math, re, time
+from datetime import date
 
 WORK_DIR = '/root/llm-wiki'
 os.chdir(WORK_DIR)
 
 OR_KEY = open('/root/.openrouter_api_key').read().strip()
+TODAY = date.today().isoformat()
 
-# Git pull
-subprocess.run(['git', 'pull', 'origin', 'main'], capture_output=True)
 
-transcripts = [f for f in os.listdir('raw/transcripts') if f.endswith('.txt')]
-for fname in transcripts:
-    basename = fname[:-4]  # strip only .txt from end
-    transcript_path = f'raw/transcripts/{fname}'
-    entity_path = f'entities/{basename}.md'
-    print(f'Processing: {basename}')
-
-    with open(transcript_path) as f:
-        content = f.read()
-
-    def call_llm(prompt, model='anthropic/claude-opus-4.7', timeout=600):
-        payload = {
-            'model': model,
-            'messages': [
-                {'role': 'system', 'content': prompt[0]},
-                {'role': 'user', 'content': prompt[1]}
-            ]
-        }
+def call_llm(system_msg, user_msg, model='anthropic/claude-opus-4.7', timeout=600, retries=2):
+    """Call OpenRouter with retry on failure. Return response text or ''."""
+    payload = {
+        'model': model,
+        'messages': [
+            {'role': 'system', 'content': system_msg},
+            {'role': 'user', 'content': user_msg}
+        ],
+        'temperature': 0.2,
+        'max_tokens': 8192
+    }
+    for attempt in range(retries + 1):
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp:
             json.dump(payload, tmp)
             tmp_path = tmp.name
@@ -36,6 +34,8 @@ for fname in transcripts:
                  '--url', 'https://openrouter.ai/api/v1/chat/completions',
                  '--header', f'Authorization: Bearer {OR_KEY}',
                  '--header', 'Content-Type: application/json',
+                 '--header', 'HTTP-Referer: https://llm-wiki',
+                 '--header', 'X-Title: LLM Wiki Processor',
                  '--data', f'@{tmp_path}'],
                 capture_output=True, text=True, timeout=timeout
             )
@@ -44,63 +44,264 @@ for fname in transcripts:
 
         try:
             data = json.loads(result.stdout)
-            return data.get('choices', [{}])[0].get('message', {}).get('content', '')
-        except:
-            print(f'LLM error: {result.stdout[:300] if result.stdout else "(empty)"}')
+            if 'error' in data:
+                err_msg = data['error'].get('message', str(data['error']))
+                print(f'  API error (attempt {attempt+1}): {err_msg[:200]}')
+                if attempt < retries:
+                    wait = 10 * (attempt + 1)
+                    print(f'  Retrying in {wait}s...')
+                    time.sleep(wait)
+                    continue
+                return ''
+            raw = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            if not raw or not raw.strip():
+                print(f'  Empty response (attempt {attempt+1})')
+                if attempt < retries:
+                    time.sleep(5)
+                    continue
+                return ''
+            m = re.search(r'```(?:\w+)?\n(.*?)\n```', raw, re.DOTALL)
+            return (m.group(1) if m else raw).strip()
+        except json.JSONDecodeError as e:
+            print(f'  JSON parse error (attempt {attempt+1}): {e}')
+            if result.stdout:
+                print(f'  Raw preview: {result.stdout[:200]}')
+            if attempt < retries:
+                time.sleep(5)
+                continue
             return ''
+        except Exception as e:
+            print(f'  LLM error: {e} — raw: {result.stdout[:300] if result.stdout else "(empty)"}')
+            if attempt < retries:
+                time.sleep(5)
+                continue
+            return ''
+    return ''
 
-    # Split large transcripts into chunks (~60K chars each to leave room for prompt)
-    MAX_CHUNK = 60000
-    if len(content) <= MAX_CHUNK:
-        # Single call
-        SYSTEM = '''You are a technical writer creating detailed wiki entries following the Andrej Karpathy LLM Wiki format. Given a video transcript, create a comprehensive wiki entity page in markdown. Include: (1) YAML frontmatter with title, created date, type: entity, tags extracted from content, sources field pointing to the raw transcript file; (2) A detailed summary section covering the main topics, arguments, and insights - be thorough and capture the depth of the content; (3) Key concepts with brief explanations of each; (4) Major sections/themes with timestamps or approximate positions; (5) Key takeaways (5-10 bullet points); (6) Notable quotes or examples; (7) Related entities section. Format as valid markdown with proper heading hierarchy.'''
-        USER = f'''Create a comprehensive wiki entry for the following video transcript. Be thorough and detailed - this is meant to be a useful reference page, not a brief summary:\n\n{content}'''
-        summary = call_llm([SYSTEM, USER])
-    else:
-        # Multi-chunk: generate partial summaries, then synthesize
-        print(f'  Splitting {len(content)} char transcript into chunks...')
-        chunks = []
-        for i in range(0, len(content), MAX_CHUNK):
-            chunk = content[i:i+MAX_CHUNK]
-            chunk_num = i // MAX_CHUNK + 1
-            total_chunks = math.ceil(len(content) / MAX_CHUNK)
-            print(f'  Chunk {chunk_num}/{total_chunks} ({len(chunk)} chars)...')
-            SYSTEM = f'''You are a section summarizer. Given PART {chunk_num} of {total_chunks} of a video transcript, write a detailed section summary covering the main topics, arguments, insights, key concepts, notable quotes, and key takeaways from THIS SECTION ONLY. Be thorough. Output just the section summary - no preamble.'''
-            USER = f'''Transcript section {chunk_num} of {total_chunks}:\n\n{chunk}'''
-            section = call_llm([SYSTEM, USER], model='anthropic/claude-sonnet-4', timeout=600)
-            if section:
-                chunks.append(f'## Part {chunk_num}: Section Summary\n{section}')
+
+SINGLE_PASS_SYS = f"""You are a technical writer creating comprehensive wiki entries following
+the Andrej Karpathy LLM Wiki format. Every entry must be a self-contained reference page
+that someone can read instead of watching the full video.
+
+OUTPUT FORMAT — produce EXACTLY this structure, nothing else:
+
+---
+title: "EXTRACTED VIDEO TITLE"
+created: {TODAY}
+type: entity
+tags: [tag1, tag2, tag3, tag4, tag5]
+sources: [raw/transcripts/EXACT_ORIGINAL_FILENAME.txt]
+---
+
+# EXTRACTED VIDEO TITLE
+
+## Summary
+[2-4 paragraphs. Start with what this video is about and who the presenter is.
+Then explain the core topics, main arguments, and key insights in depth.
+Be specific — name-drop models, papers, techniques, companies, numbers, dates.
+Do NOT write generic marketing summaries. This is a technical reference page.]
+
+## Key Concepts
+[For each major concept (aim for 6-12):
+- **Concept Name**: One-sentence definition, then 2-3 sentences of detailed explanation.
+  Name specific examples, papers, or techniques when relevant.]
+
+## Major Sections
+[Chronological or thematic breakdown. For each section: heading + 2-4 sentences.
+Include approximate timestamps if visible in the transcript.]
+
+## Key Takeaways
+- [Bullet 1: specific, factual claim or actionable insight]
+- [Bullet 2]
+- [Bullet 3]
+- [Bullet 4]
+- [Bullet 5]
+- [Bullet 6]
+- [Bullet 7+ if important]
+
+## Notable Quotes
+> "[Quote 1 — include speaker attribution if visible]"
+> "[Quote 2]"
+> "[Quote 3 — memorable phrase or definition]"
+
+## Related Entities
+[[Entity Name 1]], [[Entity Name 2]], [[Entity Name 3]], [[Entity Name 4]]
+"""
+
+
+SECTION_SYS = """You are a section analyst. Produce a dense, faithful summary of ONE
+SECTION of a video transcript. Do NOT editorialize or add information not present.
+Do NOT speculate about what comes before or after.
+
+For your section, extract:
+1. Specific topics discussed (name models, papers, techniques, companies)
+2. Key claims and any numbers/statistics cited
+3. Notable definitions or explanations given
+4. Any notable quotes or analogies used
+5. The main argument or point being made
+
+OUTPUT: Write a thorough section summary in markdown. No preamble. 200-500 words.
+"""
+
+
+SYNTHESIS_SYS = f"""You are a wiki architect. You have section-by-section summaries of a
+video transcript. Synthesize them into a single, cohesive wiki entity page.
+
+Use the section summaries as your source of truth — do not make things up.
+Extract real names, numbers, papers, techniques from the summaries.
+
+OUTPUT FORMAT — produce EXACTLY this structure:
+
+---
+title: "EXTRACTED VIDEO TITLE"
+created: {TODAY}
+type: entity
+tags: [tag1, tag2, tag3, tag4, tag5]
+sources: [raw/transcripts/EXACT_ORIGINAL_FILENAME.txt]
+---
+
+# EXTRACTED VIDEO TITLE
+
+## Summary
+[2-4 paragraphs. Cover ALL major topics from the sections. Be specific — include
+model names, paper names, companies, numbers, techniques. Avoid generic platitudes.
+This is a technical deep-dive reference page.]
+
+## Key Concepts
+[For each major concept (aim for 6-12):
+- **Concept Name**: One-sentence definition, then 2-3 sentences of explanation.
+  Be specific. Mention examples, papers, techniques when relevant.]
+
+## Major Sections
+[Chronological or thematic breakdown covering every section.
+For each: heading + 2-4 sentences. Include approximate timestamps if visible.]
+
+## Key Takeaways
+- [Bullet 1: specific, factual claim or actionable insight]
+- [Bullet 2]
+- [Bullet 3]
+- [Bullet 4]
+- [Bullet 5]
+- [Bullet 6]
+- [Bullet 7+ if important]
+
+## Notable Quotes
+> "[Quote 1]"
+> "[Quote 2]"
+> "[Quote 3]"
+
+## Related Entities
+[[Entity Name 1]], [[Entity Name 2]], [[Entity Name 3]], [[Entity Name 4]]
+"""
+
+
+def extract_title(fname):
+    """Pull the human-readable title from the transcript filename."""
+    name = fname[:-4]  # strip .txt
+    vid_match = re.search(r'\[([A-Za-z0-9_-]{11})\]\.en$', name)
+    video_id = vid_match.group(1) if vid_match else 'unknown'
+    title = re.sub(r'\s*\[[A-Za-z0-9_-]{11}\]\.en$', '', name)
+    return title.strip(), video_id
+
+
+def main():
+    subprocess.run(['git', 'pull', 'origin', 'master'], capture_output=True)
+
+    transcripts = [f for f in os.listdir('raw/transcripts')
+                   if f.endswith('.txt') and f != '.gitkeep']
+
+    if not transcripts:
+        print('No transcripts to process')
+        return
+
+    print(f'Found {len(transcripts)} transcript(s)')
+
+    for fname in transcripts:
+        basename = fname[:-4]
+        transcript_path = f'raw/transcripts/{fname}'
+        entity_path = f'entities/{basename}.md'
+        video_title, video_id = extract_title(fname)
+
+        print(f'\nProcessing: {video_title} [{video_id}]')
+        content = open(transcript_path).read()
+        content_len = len(content)
+        print(f'  Transcript: {content_len:,} chars')
+
+        MAX_SINGLE = 55000
+        if content_len <= MAX_SINGLE:
+            user_msg = f"""Original transcript file: raw/transcripts/{fname}
+
+Create a comprehensive wiki entity page for this video transcript. Be thorough
+and technically precise — this is a reference page, not a synopsis.
+
+Video title: {video_title}
+
+---
+
+{content}"""
+
+            summary = call_llm(SINGLE_PASS_SYS, user_msg)
+            if summary:
+                with open(entity_path, 'w') as f:
+                    f.write(f'# {video_title}\n\n{summary}')
+                print(f'  Created: {entity_path} ({len(summary):,} chars)')
+                os.remove(transcript_path)
             else:
-                print(f'  WARNING: Chunk {chunk_num} returned empty')
+                print(f'  FAILED — no summary generated')
 
-        # Synthesize all chunks into a full wiki page
-        if chunks:
-            SYSTEM = '''You are a technical writer creating detailed wiki entries following the Andrej Karpathy LLM Wiki format. Given the section-by-section summaries of a video transcript, create a single comprehensive wiki entity page in markdown. Include: (1) YAML frontmatter with title, created date, type: entity, tags extracted from content, sources field pointing to the raw transcript file; (2) A detailed summary section synthesizing ALL section summaries into a cohesive overview covering the main topics, arguments, and insights; (3) Key concepts with brief explanations of each; (4) Major sections/themes with timestamps or approximate positions; (5) Key takeaways (5-10 bullet points); (6) Notable quotes or examples; (7) Related entities section. Format as valid markdown with proper heading hierarchy.'''
-            USER = 'Combine these section summaries into a complete wiki entry:\n\n' + '\n\n---\n\n'.join(chunks)
-            summary = call_llm([SYSTEM, USER], timeout=300)
         else:
-            summary = ''
+            CHUNK_SIZE = 55000
+            chunks = []
+            total = math.ceil(content_len / CHUNK_SIZE)
 
-    if summary:
-        with open(entity_path, 'w') as f:
-            f.write(f'# {basename}\n\n{summary}')
-        print(f'Created: {entity_path}')
-        try:
-            os.remove(transcript_path)
-        except FileNotFoundError:
-            print(f'Transcript already removed: {transcript_path}')
+            print(f'  Splitting into {total} chunks...')
+            for i in range(0, content_len, CHUNK_SIZE):
+                chunk = content[i:i+CHUNK_SIZE]
+                n = i // CHUNK_SIZE + 1
+                print(f'  Chunk {n}/{total} ({len(chunk):,} chars)...')
+
+                section = call_llm(
+                    SECTION_SYS,
+                    f'Video title: {video_title}\nSection {n} of {total}:\n\n{chunk}',
+                    timeout=900
+                )
+                if section:
+                    chunks.append(f'## Section {n}\n{section}')
+                else:
+                    print(f'  WARNING: Chunk {n} returned empty')
+
+            if chunks:
+                print(f'  Synthesizing {len(chunks)} sections...')
+                summary = call_llm(
+                    SYNTHESIS_SYS,
+                    f'Video title: {video_title}\nOriginal file: raw/transcripts/{fname}\n\n'
+                    + '\n\n---\n\n'.join(chunks),
+                    timeout=900
+                )
+                if summary:
+                    with open(entity_path, 'w') as f:
+                        f.write(f'# {video_title}\n\n{summary}')
+                    print(f'  Created: {entity_path} ({len(summary):,} chars)')
+                    os.remove(transcript_path)
+                else:
+                    print(f'  FAILED — synthesis returned empty')
+            else:
+                print(f'  FAILED — no chunks processed')
+
+    ts = subprocess.run(['date', '-u', '+%Y%m%dT%H%M%SZ'],
+                        capture_output=True, text=True).stdout.strip()
+    subprocess.run(['git', 'add', '-A'])
+    r = subprocess.run(['git', 'commit', '-m', f'Auto: process transcripts {ts}'],
+                       capture_output=True, text=True)
+    if r.returncode == 0:
+        r = subprocess.run(['git', 'push', 'origin', 'master'],
+                          capture_output=True, text=True)
+        print(f'\nPushed to GitHub')
     else:
-        print(f'No summary for {basename}')
-        print(result.stdout[:500] if result.stdout else '(empty)')
+        print(f'\nNothing new to commit')
 
-date_result = subprocess.run(['date', '-u', '+%Y%m%dT%H%M%SZ'], capture_output=True, text=True)
-ts = date_result.stdout.strip()
-subprocess.run(['git', 'add', '-A'], capture_output=True)
-result = subprocess.run(['git', 'commit', '-m', f'Auto: process transcripts {ts}'], capture_output=True)
-if result.returncode == 0:
-    result = subprocess.run(['git', 'push', 'origin', 'main'], capture_output=True)
-    print('Pushed to GitHub')
-else:
-    print('Nothing to commit')
+    print(f'Done at {subprocess.run(["date"],capture_output=True,text=True).stdout}')
 
-print(f'Cron run complete at {subprocess.run(["date"],capture_output=True,text=True).stdout}')
+
+if __name__ == '__main__':
+    main()
