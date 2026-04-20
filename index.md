@@ -10,12 +10,13 @@ tags: [meta]
 
 > Content catalog. Every wiki page listed under its type with a one-line summary.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-04-19 | Total pages: 0
+> Last updated: 2026-04-20 | Total pages: 1
 
 ## Entities
 <!-- Alphabetical within section -->
 
 ## Concepts
+- [[tum-office-runtime-fix]] — Tum Office runtime port conflict fix: systemd services fighting over port 19011, OpenRouter migration, correct workspace path
 
 ## Comparisons
 
