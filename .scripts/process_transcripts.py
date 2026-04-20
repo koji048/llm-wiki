@@ -7,7 +7,7 @@ os.chdir(WORK_DIR)
 OR_KEY = open('/root/.openrouter_api_key').read().strip()
 
 # Git pull
-subprocess.run(['git', 'pull', 'origin', 'master'], capture_output=True)
+subprocess.run(['git', 'pull', 'origin', 'main'], capture_output=True)
 
 transcripts = [f for f in os.listdir('raw/transcripts') if f.endswith('.txt')]
 for fname in transcripts:
@@ -98,7 +98,7 @@ ts = date_result.stdout.strip()
 subprocess.run(['git', 'add', '-A'], capture_output=True)
 result = subprocess.run(['git', 'commit', '-m', f'Auto: process transcripts {ts}'], capture_output=True)
 if result.returncode == 0:
-    result = subprocess.run(['git', 'push', 'origin', 'master'], capture_output=True)
+    result = subprocess.run(['git', 'push', 'origin', 'main'], capture_output=True)
     print('Pushed to GitHub')
 else:
     print('Nothing to commit')
