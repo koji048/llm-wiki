@@ -10,10 +10,14 @@ tags: [meta]
 
 > Content catalog. Every wiki page listed under its type with a one-line summary.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-04-20 | Total pages: 3
+> Last updated: 2026-04-20 | Total pages: 7
 
 ## Entities
 <!-- Alphabetical within section -->
+- [[deep-dive-into-llms-7xTGNNLPyMI]] — Comprehensive deep dive into LLMs like ChatGPT (3.5hr); covers tokenization, Transformer, pre-training, SFT, RLHF, tool use, "Thinking" models
+- [[how-i-use-llms-EWvNQjAaOHw]] — Practical guide to using LLMs (2hr); covers context window, search tools, Python execution, custom GPTs, voice I/O, image generation, translation
+- [[intro-to-large-language-models-zjkBMFhNj_g]] — Intro to Large Language Models (1hr talk by Andrej Karpathy); pre-training, fine-tuning, RLHF, tool use, LLM OS paradigm, security
+- [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]] — Building micrograd (autograd engine) from scratch with Andrej Karpathy; covers derivatives, chain rule, Value class, forward/backward pass, Neurons, Layers, MLP, MSE loss, and gradient descent training loop
 
 - [[entities/VMj-3S1tku0]] — Building micrograd: backpropagation and autograd from scratch
 - [[entities/7xTGNNLPyMI]] — Deep Dive: how LLMs are trained (pre-training + alignment)
