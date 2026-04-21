@@ -16,6 +16,7 @@ tags: [meta]
 <!-- Alphabetical within section -->
 
 - [[andrej-karpathy]] — AI researcher and educator; creator of micrograd, llm.c, and the LLM Wiki pattern; former OpenAI/Tesla
+- [[anthropic-agent-skills]] — Anthropic open standard for AI agent skills; progressive disclosure, 16 skill types, skill-creator iterative workflow, best practices; compared to Hermes Agent and GStack
 - [[deep-dive-into-llms-7xTGNNLPyMI]] — Comprehensive deep dive into LLMs like ChatGPT (3.5hr); tokenization, Transformer, pre-training, SFT, RLHF, tool use, Thinking models
 - [[deepseek-r1-reasoning-model]] — DeepSeek's reasoning model; pioneered RL-based thinking model methodology; emergent behaviors, AIME accuracy scaling with response length
 - [[fineweb]] — High-quality pre-training dataset (~44TB, 15T tokens) derived from Common Crawl with aggressive URL/language filtering
