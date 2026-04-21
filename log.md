@@ -73,3 +73,10 @@ tags: [meta]
 - Added to index.md after micrograd entry, bumped page count to 15
 - Wikilinks to [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]], [[transformer]], [[andrej-karpathy]]
 
+
+## [2026-04-21] create | llm-automation-modes comparison page
+- Created comparisons/llm-automation-modes.md: automated cron pipeline vs. interactive gcm-style
+- Dimensions: human in loop, latency, risk, best for, trust model, automation level
+- Shared philosophy: LLM does grunt work, human handles decisions
+- Added to index.md under Comparisons, bumped page count to 16
+

@@ -10,7 +10,7 @@ tags: [meta]
 
 > Content catalog. Every wiki page listed under its type with a one-line summary.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-04-21 | Total pages: 15
+> Last updated: 2026-04-21 | Total pages: 16
 
 ## Entities
 <!-- Alphabetical within section -->
@@ -34,6 +34,8 @@ tags: [meta]
 - [[tum-office-runtime-fix]] — Tum Office runtime port conflict fix: systemd services fighting over port 19011, OpenRouter migration, correct workspace path
 
 ## Comparisons
+
+- [[llm-automation-modes]] — Two LLM automation modes: automated cron pipeline (wiki compounding) vs. interactive gcm-style (human in loop per action); shared philosophy, when to use which
 
 ## Queries
 
