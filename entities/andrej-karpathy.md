@@ -10,19 +10,19 @@ sources: []
 # Andrej Karpathy
 
 ## Summary
-Andrej Karpathy is a researcher, educator, and AI communicator best known for his work at OpenAI (original founding member), Tesla (Head of Autopilot Vision), and as the creator of micrograd and karpathy.io. His YouTube channel is a primary educational resource for understanding LLMs, neural networks, and AI engineering — covering everything from from-scratch autograd implementations to the internals of ChatGPT.
+Andrej Karpathy is a researcher, educator, and AI communicator. He was a founding member of OpenAI, led Tesla's Autopilot Vision team, and is best known for creating micrograd (a ~150-line autograd engine), llm.c (GPT-2 training in pure C), and the LLM Wiki knowledge management pattern. His YouTube channel is a primary resource for understanding LLMs, neural networks, and AI engineering.
 
 ## Key Contributions
-- **micrograd** (~150-line autograd engine) — pedagogical from-scratch deep learning
+- **micrograd** — ~150-line pedagogical autograd engine built from scratch in a Jupyter notebook
 - **llm.c** — reproduction of GPT-2 training in pure C, dramatically reducing compute cost
-- **LLM Wiki pattern** — using Obsidian + LLM as a compounding knowledge base
+- **LLM Wiki** — compounding knowledge base pattern using Obsidian + LLM
 - Extensive YouTube lectures on LLMs, transformers, and practical AI usage
 
-## Related Videos (this wiki)
-- [[entities/Deep Dive into LLMs like ChatGPT [7xTGNNLPyMI].en.md]] — How LLMs are built
-- [[entities/How I use LLMs [EWvNQjAaOHw].en.md]] — Practical LLM usage workflows
-- [[entities/[1hr Talk] Intro to Large Language Models [zjkBMFhNj_g].en.md]] — LLM intro for busy people
-- [[entities/The spelled-out intro to neural networks and backpropagation： building micrograd [VMj-3S1tku0].en.md]] — Building micrograd from scratch
+## Related Videos
+- [[deep-dive-into-llms-7xTGNNLPyMI]] — How LLMs are built (tokenization, pre-training, SFT, RLHF)
+- [[how-i-use-llms-EWvNQjAaOHw]] — Practical LLM usage workflows
+- [[intro-to-large-language-models-zjkBMFhNj_g]] — 1hr LLM intro for busy people
+- [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]] — Building micrograd from scratch
 
 ## Notable Quotes
 > "A massive blob of simulated neural tissue."

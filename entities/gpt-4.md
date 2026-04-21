@@ -10,7 +10,7 @@ sources: []
 # GPT-4
 
 ## Summary
-GPT-4 is OpenAI's fourth-generation large language model, released in March 2023. It introduced significant improvements over GPT-3.5 including multimodal inputs (vision), higher reasoning ability on professional and academic benchmarks, and longer context windows. It uses a ~100,277 token vocabulary via `cl100k_base` BPE encoding and was trained via next-token prediction on a large internet corpus.
+GPT-4 is OpenAI's fourth-generation large language model, released March 2023. It introduced multimodal inputs (vision), higher reasoning ability on professional and academic benchmarks, and longer context windows. Uses a ~100,277-token vocabulary via `cl100k_base` BPE encoding and is trained via next-token prediction followed by SFT and RLHF alignment.
 
 ## Key Facts
 - Released: March 2023
@@ -18,11 +18,10 @@ GPT-4 is OpenAI's fourth-generation large language model, released in March 2023
 - Architecture: Transformer-based, next-token prediction
 - Tokenizer: `cl100k_base` — 100,277 tokens
 - Training: Pre-training + SFT + RLHF pipeline
-- Context window: 128k tokens (effective)
+- Context window: 128k tokens
 
 ## Related Entities
-- [[andrej-karpathy]] — Primary educator on GPT-4 internals
-- [[entities/Deep Dive into LLMs like ChatGPT [7xTGNNLPyMI].en.md]] — Deep dive on GPT-4's training pipeline
-- [[OpenAI]] — Developer
-- [[RLHF]] — Alignment technique used
-- [[Byte Pair Encoding]] — Tokenization method
+- [[deep-dive-into-llms-7xTGNNLPyMI]] — Deep dive on GPT-4's training pipeline
+- [[rlhf]] — Alignment technique used
+- [[transformer]] — Underlying architecture
+- [[instruct-gpt-paper]] — Original RLHF/SFT paper

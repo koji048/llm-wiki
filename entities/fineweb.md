@@ -10,14 +10,12 @@ sources: []
 # FineWeb
 
 ## Summary
-FineWeb is the high-quality pre-training dataset used by Karpathy as the reference dataset in his "Deep Dive into LLMs" video. It is derived from Common Crawl (~2.7B pages as of 2024) and经过了严格的URL过滤、语言识别 (>65% English)、去重和PII移除，最终达到约44TB、15万亿token的高质量文本。
+FineWeb is the high-quality pre-training dataset used by Karpathy as the reference dataset in his "Deep Dive into LLMs" video. Derived from Common Crawl (~2.7B pages as of 2024), it undergoes aggressive filtering: URL filtering, language detection (>65% English), deduplication, and PII removal — resulting in ~44TB of high-quality text, approximately 15 trillion tokens.
 
 ## Key Facts
-- Source: Common Crawl
+- Source: Common Crawl (~2.7B pages as of 2024)
 - Size: ~44TB / ~15 trillion tokens (after filtering)
-- Filtering steps: URL过滤 → 文本提取 → 语言过滤 → 去重 → PII移除
+- Filtering steps: URL filtering → text extraction → language filtering → deduplication → PII removal
 
 ## Related Entities
-- [[entities/Deep Dive into LLMs like ChatGPT [7xTGNNLPyMI].en.md]] — FineWeb as pre-training dataset
-- [[Common Crawl]] — Original data source
-- [[Hugging Face]] — Dataset hosting
+- [[deep-dive-into-llms-7xTGNNLPyMI]] — FineWeb as pre-training dataset
