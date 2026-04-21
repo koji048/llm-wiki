@@ -53,3 +53,8 @@ tags: [meta]
 - Added 10 stub entities: andrej-karpathy, gpt-4, llama-2, deepseek-r1-reasoning-model, instruct-gpt-paper, rlhf, transformer, fineweb, karpathy-llm-wiki, karpathy-llm-wiki (concept)
 - All wikilinks now resolve to existing files; no dangling references
 - Obsidian-ready: clean slug filenames, proper frontmatter, [[wikilinks]] between related entities
+
+## [2026-04-21] lint+dedupe | Stub entity quality fix
+- Fixed 8 stub files: replaced all dead wikilinks (deleted .en.md files, non-existent stubs)
+- FineWeb: removed accidental Chinese mixed-language text
+- All wikilinks: bare format (no [[entities/...]] prefix), all resolve to existing files
