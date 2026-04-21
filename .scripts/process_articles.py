@@ -122,14 +122,54 @@ This is a technical reference page, not a summary. Go deep.]
 """
 
 
+NAV_JUNK = {
+    'skip to main content', 'discord', 'search...', 'ctrl k', 'ask ai',
+    'navigation', 'table of contents', 'github', 'table of contents',
+}
+NAV_PATTERNS = [
+    re.compile(r'^\[Skip to', re.I),
+    re.compile(r'Agent Skills now has an official', re.I),
+    re.compile(r'^\s*\*\s*\['),  # list items (nav)
+    re.compile(r'^Agent Skills home page', re.I),
+    re.compile(r'^\s*Search\.\.\.', re.I),
+    re.compile(r'^\s*Ctrl K', re.I),
+    re.compile(r'^\s*For skill creators', re.I),
+    re.compile(r'^#+\s*For ', re.I),
+]
+
+
+def is_nav_junk(line):
+    """Skip nav/junk lines that aren't real article content."""
+    stripped = line.strip()
+    if not stripped:
+        return True
+    # Short navigation lines
+    if stripped.lower() in NAV_JUNK:
+        return True
+    # Nav pattern matches
+    for pat in NAV_PATTERNS:
+        if pat.match(stripped):
+            return True
+    return False
+
+
 def extract_title(content):
-    """Pull title from frontmatter or first heading."""
+    """Pull title from frontmatter or first real article heading."""
     m = re.search(r'^title:\s*["\']?(.*?)["\']?\s*$', content, re.MULTILINE)
-    if m:
+    if m and m.group(1).strip():
         return m.group(1).strip()
-    m = re.search(r'^#+\s*(.+)$', content, re.MULTILINE)
-    if m:
-        return m.group(1).strip()
+    # Find the first real H1 heading after nav junk
+    for line in content.split('\n'):
+        if is_nav_junk(line):
+            continue
+        m = re.match(r'^(#{1,2})\s+(.+)$', line.strip())
+        if m and len(m.group(1)) <= 2:
+            title = m.group(2).strip()
+            # Clean markdown links
+            title = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', title)
+            title = title.strip()
+            if len(title) > 4:
+                return title
     return 'Untitled'
 
 
@@ -140,7 +180,7 @@ def extract_source_url(content):
 
 
 def extract_body(content):
-    """Remove frontmatter and return body."""
+    """Remove frontmatter."""
     if content.startswith('---'):
         end = content.find('---', 3)
         if end != -1:
@@ -148,12 +188,23 @@ def extract_body(content):
     return content
 
 
-def slugify(title):
-    """Create a slug from a title."""
+def slugify(title, url=''):
+    """Create a short slug from title or URL."""
+    # Use URL slug if title is generic
+    if 'untitled' in title.lower() or len(title) < 5:
+        if url:
+            u = re.sub(r'https?://', '', url)
+            u = re.sub(r'[^\w]', '-', u)
+            u = re.sub(r'-+', '-', u)
+            return u.strip('-')[:60]
     s = re.sub(r'[^\w\s\-]', '', title.lower())
     s = re.sub(r'[\s]+', '-', s)
     s = re.sub(r'-+', '-', s)
-    return s[:80]
+    # Remove common stop words for brevity
+    stop = {'the', 'a', 'an', 'of', 'to', 'for', 'in', 'on', 'at', 'and', 'or', 'is', 'it', 'with'}
+    parts = [p for p in s.split('-') if p and p not in stop]
+    slug = '-'.join(parts)[:60]
+    return slug or 'article'
 
 
 def main():
@@ -173,7 +224,7 @@ def main():
         body = extract_body(open(article_path).read())
         title = extract_title(open(article_path).read())
         source_url = extract_source_url(open(article_path).read())
-        slug = slugify(title)
+        slug = slugify(title, source_url)
         entity_path = f'entities/{slug}.md'
 
         # Avoid overwriting existing entities
