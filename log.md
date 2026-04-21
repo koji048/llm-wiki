@@ -80,3 +80,13 @@ tags: [meta]
 - Shared philosophy: LLM does grunt work, human handles decisions
 - Added to index.md under Comparisons, bumped page count to 16
 
+
+## [2026-04-21] restructure | wiki structure gaps fixed
+- Removed duplicate entities/karpathy-llm-wiki.md (kept concepts/ version)
+- Moved obsidian-local-vault-setup.md to raw/articles/ (setup docs belong there)
+- Renamed queries/ -> analyses/ (matching Astro-Han implementation)
+- Created overview.md: top-level synthesis of wiki domains, key themes, structure
+- Created glossary.md: living terminology with 30+ defined terms
+- Updated index.md: added overview+glossary to Meta, removed obsolete entries, renamed Queries->Analyses
+- Page count: 16 -> 20 (overview, glossary added; duplicate removed; obsidian moved)
+

@@ -10,7 +10,7 @@ tags: [meta]
 
 > Content catalog. Every wiki page listed under its type with a one-line summary.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-04-21 | Total pages: 16
+> Last updated: 2026-04-21 | Total pages: 20
 
 ## Entities
 <!-- Alphabetical within section -->
@@ -30,17 +30,17 @@ tags: [meta]
 - [[transformer]] — Neural network architecture (Vaswani et al. 2017) underlying all modern LLMs; self-attention, positional encoding, FFN/MLP layers
 
 ## Concepts
-- [[karpathy-llm-wiki]] — karpathy gist: LLM Wiki pattern, wiki as persistent compounding artifact, schema as agent config, query answers filed back as pages
 - [[tum-office-runtime-fix]] — Tum Office runtime port conflict fix: systemd services fighting over port 19011, OpenRouter migration, correct workspace path
 
 ## Comparisons
 
 - [[llm-automation-modes]] — Two LLM automation modes: automated cron pipeline (wiki compounding) vs. interactive gcm-style (human in loop per action); shared philosophy, when to use which
 
-## Queries
+## Analyses
 
 ## Meta
-- [[obsidian-local-vault-setup]] — how to connect Obsidian on Mac to the VPS wiki via GitHub pull
+- [[overview]] — high-level synthesis of the entire knowledge base: AI/ML foundations, from-scratch implementations, LLM engineering, reasoning and agents, wiki meta-pattern
+- [[glossary]] — living terminology: attention, backpropagation, fine-tuning, RLHF, RMSNorm, token, wikilink, and other domain terms
 - [[SCHEMA.md]] — Schema, conventions, and tag taxonomy
 - [[index.md]] — This index
 - [[log.md]] — Chronological action log
