@@ -46,3 +46,10 @@ tags: [meta]
 - Created entities: VMj-3S1tku0, 7xTGNNLPyMI, EWvNQjAaOHw, zjkBMFhNj_g
 - Updated index.md with 4 new entity pages
 - Source: YouTube auto-generated captions via yt-dlp
+
+## [2026-04-21] lint+dedupe | Entity quality and deduplication pass
+- Removed 4 auto-generated .en.md duplicates — kept comprehensive slug-named entity files
+- Adopted remote slug-named entities: deep-dive-into-llms, how-i-use-llms, intro-to-large-language-models, micrograd (created by cron pipeline)
+- Added 10 stub entities: andrej-karpathy, gpt-4, llama-2, deepseek-r1-reasoning-model, instruct-gpt-paper, rlhf, transformer, fineweb, karpathy-llm-wiki, karpathy-llm-wiki (concept)
+- All wikilinks now resolve to existing files; no dangling references
+- Obsidian-ready: clean slug filenames, proper frontmatter, [[wikilinks]] between related entities

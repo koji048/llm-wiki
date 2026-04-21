@@ -1,7 +1,7 @@
 ---
 title: Wiki Index
 created: 2026-04-19
-updated: 2026-04-19
+updated: 2026-04-21
 type: meta
 tags: [meta]
 ---
@@ -10,19 +10,23 @@ tags: [meta]
 
 > Content catalog. Every wiki page listed under its type with a one-line summary.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-04-20 | Total pages: 7
+> Last updated: 2026-04-21 | Total pages: 14
 
 ## Entities
 <!-- Alphabetical within section -->
-- [[deep-dive-into-llms-7xTGNNLPyMI]] — Comprehensive deep dive into LLMs like ChatGPT (3.5hr); covers tokenization, Transformer, pre-training, SFT, RLHF, tool use, "Thinking" models
-- [[how-i-use-llms-EWvNQjAaOHw]] — Practical guide to using LLMs (2hr); covers context window, search tools, Python execution, custom GPTs, voice I/O, image generation, translation
-- [[intro-to-large-language-models-zjkBMFhNj_g]] — Intro to Large Language Models (1hr talk by Andrej Karpathy); pre-training, fine-tuning, RLHF, tool use, LLM OS paradigm, security
-- [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]] — Building micrograd (autograd engine) from scratch with Andrej Karpathy; covers derivatives, chain rule, Value class, forward/backward pass, Neurons, Layers, MLP, MSE loss, and gradient descent training loop
 
-- [[entities/VMj-3S1tku0]] — Building micrograd: backpropagation and autograd from scratch
-- [[entities/7xTGNNLPyMI]] — Deep Dive: how LLMs are trained (pre-training + alignment)
-- [[entities/EWvNQjAaOHw]] — How I use LLMs: practical ChatGPT usage guide
-- [[entities/zjkBMFhNj_g]] — Intro to LLMs: token prediction, emergent behaviors
+- [[andrej-karpathy]] — AI researcher and educator; creator of micrograd, llm.c, and the LLM Wiki pattern; former OpenAI/Tesla
+- [[deep-dive-into-llms-7xTGNNLPyMI]] — Comprehensive deep dive into LLMs like ChatGPT (3.5hr); tokenization, Transformer, pre-training, SFT, RLHF, tool use, Thinking models
+- [[deepseek-r1-reasoning-model]] — DeepSeek's reasoning model; pioneered RL-based thinking model methodology; emergent behaviors, AIME accuracy scaling with response length
+- [[fineweb]] — High-quality pre-training dataset (~44TB, 15T tokens) derived from Common Crawl with aggressive URL/language filtering
+- [[gpt-4]] — OpenAI's 4th-gen LLM; multimodal, ~100k token vocabulary via cl100k_base, RLHF-aligned
+- [[how-i-use-llms-EWvNQjAaOHw]] — Practical guide to using LLMs (2hr); context window, search tools, Python execution, custom GPTs, voice I/O, image generation
+- [[instruct-gpt-paper]] — OpenAI paper (2022) introducing SFT + RLHF pipeline; hired Upwork/Scale AI labelers for 100K instruction-following conversations
+- [[intro-to-large-language-models-zjkBMFhNj_g]] — Andrej Karpathy 1hr intro; LLM as two files, pre-training as lossy compression, fine-tuning, RLHF, tool use, LLM OS paradigm, security
+- [[llama-2]] — Meta's open-weight LLM family (7B–70B); Karpathy's two-files case study; 140GB params + 500-line C runfile
+- [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]] — Building micrograd from scratch; derivatives, chain rule, Value class, forward/backward pass, Neurons, Layers, MLP, MSE loss, gradient descent
+- [[rlhf]] — Reinforcement Learning from Human Feedback; alignment for unverifiable domains; gameable reward models; vs. verifiable-domain RL (AlphaGo)
+- [[transformer]] — Neural network architecture (Vaswani et al. 2017) underlying all modern LLMs; self-attention, positional encoding, FFN/MLP layers
 
 ## Concepts
 - [[karpathy-llm-wiki]] — karpathy gist: LLM Wiki pattern, wiki as persistent compounding artifact, schema as agent config, query answers filed back as pages
