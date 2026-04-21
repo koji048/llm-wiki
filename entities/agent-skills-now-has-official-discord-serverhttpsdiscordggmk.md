@@ -4,75 +4,80 @@
 title: "Best Practices for Skill Creators"
 created: 2026-04-21
 type: entity
-tags: [agent-skills, llm-engineering, prompt-engineering, context-management, skill-design]
-related: [[Agent Skills]], [[SKILL.md Specification]], [[Progressive Disclosure]], [[Evaluating Skills]], [[Optimizing Skill Descriptions]], [[Using Scripts in Skills]]
+tags: [agent-skills, llm-engineering, prompt-engineering, context-engineering, skill-design]
+related: [[Agent Skills]], [[Progressive Disclosure]], [[SKILL.md Specification]], [[Evaluating Skills]], [[Using Scripts in Skills]], [[Optimizing Skill Descriptions]]
 sources: [raw/articles/agentskills_io_skill-creation_best-practices.md]
 ---
 
 # Best Practices for Skill Creators
 
 ## Summary
-This is the official best-practices guide from agentskills.io for authoring Agent Skills — portable, model-agnostic units of expertise packaged as `SKILL.md` files (plus optional `references/`, `assets/`, and `scripts/` directories) that load into an LLM agent's context when activated. The guide organizes skill authorship around four themes: grounding skills in real expertise rather than LLM-generated generic advice, spending context-window tokens wisely, calibrating the level of prescriptive control to task fragility, and applying reusable structural patterns (gotchas, templates, checklists, validation loops).
+This is the official best-practices guide from agentskills.io for authoring Agent Skills — structured `SKILL.md`-based instruction bundles that extend an LLM agent's capabilities for specific domains or tasks. The guide is organized around four principles: (1) grounding skills in real, project-specific expertise rather than LLM-generated generic advice, (2) spending context window tokens wisely, (3) calibrating the level of control/prescriptiveness to the fragility of each sub-task, and (4) applying concrete structural patterns like gotchas sections, templates, checklists, and validation loops.
 
-Key quantitative guidance: keep `SKILL.md` under **500 lines and 5,000 tokens** per the specification, pushing detail into secondary files loaded via progressive disclosure — but only when the agent is told explicitly *when* to load them. The guide emphasizes that skills should teach *procedures* (reusable methods) rather than *declarations* (specific answers), should provide a single default rather than menus of options, and should omit content the agent already knows (e.g., what a PDF is, how HTTP works).
+Key quantitative guidance: `SKILL.md` should stay under **500 lines and 5,000 tokens** per the specification; additional material belongs in a `references/` directory (or `assets/` for templates, `scripts/` for bundled code) and should be loaded on demand via progressive disclosure with explicit load triggers ("Read `references/api-errors.md` if the API returns a non-200 status"). The guide repeatedly emphasizes that once a skill activates, its entire body loads into context alongside conversation history and other active skills, so every token competes for agent attention.
 
-The document recommends an iterative workflow: draft from real expertise (either extracted from a hands-on agent session or synthesized from project artifacts like runbooks, API specs, code-review comments, and version-control patches), run against real tasks, read execution traces (not just final outputs), and fold corrections back in — especially as entries in a dedicated "Gotchas" section. It cross-references companion guides on evaluating skills, optimizing descriptions, and bundling scripts.
+The document prescribes concrete authoring workflows: extract skills from hands-on task traces (capturing corrections, I/O formats, project context), synthesize from artifacts (runbooks, code review comments, VCS patches, incident reports), and iterate via execute-then-revise cycles reading actual agent execution traces — not just final outputs. It introduces specific instructional patterns including **Gotchas sections** (environment-specific non-obvious facts), **output templates**, **checklists**, **validation loops**, and **plan-validate-execute** workflows (e.g., for PDF form filling: extract fields → create value map → validate against source-of-truth → execute).
 
 ## Key Concepts
 
-- **Grounding in Real Expertise**: Skills generated purely from an LLM's general training produce vague procedures ("handle errors appropriately") instead of concrete project-specific patterns. Effective skills are extracted from a hands-on task (noting corrections, I/O formats, and context provided) or synthesized from existing artifacts — runbooks, API specs, schemas, code review comments, git history, and incident reports.
+- **Start from real expertise**: Skills authored by asking an LLM to generate content from its general training produce vague directives like "handle errors appropriately." Effective skills require domain-specific inputs — project schemas, failure modes, style guides — fed into the creation process.
 
-- **Refine with Real Execution**: Run the skill on real tasks and feed *all* results (successes and failures) back into revision. Even a single execute-then-revise pass meaningfully improves quality. Read agent execution traces to spot wasted steps caused by vague instructions, irrelevant instructions the agent follows anyway, or too many options without a clear default.
+- **Extract from hands-on tasks**: Complete a real task interactively with an agent, then distill the reusable pattern. Capture four things: steps that worked, corrections you made (e.g., "use library X not Y"), input/output formats, and project-specific context you supplied.
 
-- **Context-Window Economy**: When a skill activates, its entire `SKILL.md` body loads alongside conversation history, system prompt, and other active skills. Every token competes for attention. The test question for each line: "Would the agent get this wrong without this instruction?" If no, cut it.
+- **Synthesize from project artifacts**: Use internal runbooks, API specs, code review comments, VCS history (patches reveal real change patterns), and postmortems as source material. A pipeline skill built from your team's actual incident reports outperforms one built from generic "data engineering best practices."
 
-- **Coherent-Unit Scoping**: Skill scope is analogous to function scope. Too narrow → multiple skills load per task, creating overhead and conflicts. Too broad → activation becomes imprecise. Example: a skill for querying a database and formatting results is coherent; adding database administration makes it too broad.
+- **Refine with real execution**: Run the skill, feed all results (not just failures) back in. Read execution traces to diagnose problems: vague instructions cause flailing, irrelevant instructions get followed anyway, and too many options without a default waste steps. Even one execute-revise pass noticeably improves quality.
 
-- **Progressive Disclosure**: Keep `SKILL.md` ≤ 500 lines / 5,000 tokens. Move detail to `references/` or `assets/` but tell the agent explicitly when to load each file (e.g., "Read `references/api-errors.md` if the API returns a non-200 status"). Generic "see references/" pointers don't work.
+- **Spend context wisely**: `SKILL.md` loads into the context window alongside conversation, system prompts, and other active skills. Add what the agent lacks; omit what it already knows (don't explain what a PDF is). Test the skill removal — if the agent handles the task without it, the skill may add no value.
 
-- **Match Specificity to Fragility**: Prescriptiveness should scale with task fragility. For flexible multi-approach tasks (e.g., code review), explain *why* rather than rigid steps. For fragile operations (e.g., database migrations), give exact commands and forbid modifications. Most skills mix both and should calibrate each section independently.
+- **Design coherent units**: Skill scope is like function scope. Too narrow forces multiple skills to co-load (conflicts, overhead); too broad makes activation imprecise. Example: "query database + format results" is one unit; adding "database administration" is too much.
 
-- **Defaults Over Menus**: When multiple tools work, pick one default (e.g., `pdfplumber` for PDF text extraction) and mention alternatives briefly as escape hatches (e.g., `pdf2image` + `pytesseract` for scanned PDFs). Avoid presenting equal options.
+- **Aim for moderate detail**: Exhaustive edge-case coverage hurts — the agent pursues inapplicable instructions. Concise stepwise guidance with a working example beats comprehensive documentation. Trust agent judgment for most edge cases.
 
-- **Procedures Over Declarations**: Teach the agent *how to approach* a class of problems, not *what to produce* for one instance. A reusable method ("read schema from `references/schema.yaml`, join on `_id` foreign keys, apply filters as WHERE clauses") beats a specific answer hard-coded for one query.
+- **Progressive disclosure**: Keep `SKILL.md` to core/always-needed content (<500 lines, <5,000 tokens). Move detailed material to `references/`, templates to `assets/`, code to `scripts/`. Critically, tell the agent *when* to load each file with specific triggers, not "see references/ for details."
 
-- **Gotchas Sections**: A list of environment-specific facts that defy reasonable assumptions — soft-delete columns, inconsistent ID naming across services (`user_id` vs `uid` vs `accountId`), misleading health endpoints. These belong in `SKILL.md` itself since the agent may not recognize the trigger to load a separate file. Every correction made during use should become a new gotcha.
+- **Match specificity to fragility**: Give the agent freedom (often just explain *why*) for tasks with multiple valid approaches (e.g., code review checklist). Be prescriptive for fragile/destructive operations (e.g., "Run exactly this migration command, do not modify flags"). Most skills mix both.
 
-- **Output Templates**: Agents pattern-match concrete structures better than prose descriptions. Short templates inline in `SKILL.md`; longer or situational ones in `assets/` with conditional load instructions.
+- **Provide defaults, not menus**: Instead of listing pypdf / pdfplumber / PyMuPDF / pdf2image as equals, pick one default (pdfplumber) with a brief escape hatch ("For scanned PDFs use pdf2image with pytesseract").
 
-- **Checklists for Multi-Step Workflows**: Explicit numbered checklists with checkbox syntax help agents track progress across dependencies and validation gates.
+- **Procedures over declarations**: Teach *how to approach* a problem class, not *what to produce* for one instance. A SQL skill should say "read schema, join on `_id` foreign keys, apply filters as WHERE clauses" — not "JOIN orders to customers and sum amount for EMEA."
 
-- **Validation Loops**: Do work → run validator (script, checklist, or self-check) → fix issues → repeat until passing. A reference document can serve as the validator.
+- **Gotchas sections**: The highest-value content — concrete environment-specific facts defying reasonable assumptions. Examples: soft-delete tables requiring `WHERE deleted_at IS NULL`, ID fields named differently across services (`user_id`/`uid`/`accountId`), `/health` returning 200 while DB is down. Keep these in `SKILL.md` itself because triggers may not be recognizable in advance. When correcting agent mistakes, add to gotchas.
 
-- **Plan-Validate-Execute Pattern**: For batch/destructive operations, have the agent write an intermediate structured plan (e.g., `field_values.json`), validate it against a source of truth (`form_fields.json`), and only then execute. Rich error messages like "Field 'signature_date' not found — available fields: ..." enable self-correction.
+- **Output templates**: Agents pattern-match concrete structures better than prose descriptions. Inline short templates; store long/conditional ones in `assets/`.
 
-- **Bundling Reusable Scripts**: If execution traces show the agent reinventing the same logic (chart building, format parsing, output validation) across runs, extract it into a tested script in `scripts/` rather than relying on regeneration.
+- **Checklists**: Markdown checkbox lists (`- [ ] Step N: ...`) help track progress through dependent multi-step workflows.
+
+- **Validation loops**: Pattern of do work → run validator (script/checklist/self-check) → fix issues → repeat until pass. Reference docs can serve as the validator.
+
+- **Plan-validate-execute**: For batch/destructive operations, write an intermediate plan in a structured file, validate it against a source-of-truth artifact, then execute. PDF form-filling example: `analyze_form.py` → `form_fields.json` (source of truth) → author `field_values.json` → `validate_fields.py` produces actionable errors ("Field 'signature_date' not found — available: customer_name, order_total, signature_date_signed") → `fill_form.py`.
+
+- **Bundling reusable scripts**: If execution traces show the agent reinventing the same logic (charting, parsing, validating) across runs, promote it to a tested script in `scripts/`.
 
 ## Key Takeaways
-- `SKILL.md` should stay under **500 lines / 5,000 tokens**; use progressive disclosure for more content, with explicit load triggers.
-- Skills must be grounded in real expertise — extract from hands-on agent sessions or synthesize from project artifacts (runbooks, schemas, git history, code review comments).
-- Apply the cut-test to every line: if the agent would handle it correctly without the instruction, remove it.
-- Provide a default tool/approach, not a menu of equal options; include a brief escape hatch for known exceptions.
-- Favor procedural, generalizable instructions over instance-specific declarations.
-- The Gotchas section is often a skill's highest-value content — it captures non-obvious, environment-specific traps.
-- Calibrate prescriptiveness per section: freedom for flexible tasks (explain *why*), exact commands for fragile ones (forbid modification).
-- Iterate by reading agent execution traces, not just final outputs; fold corrections back in as gotchas.
-- Use Plan-Validate-Execute for batch/destructive operations so the agent can self-correct before committing.
-- Extract recurring logic observed in traces into bundled scripts in `scripts/`.
+- `SKILL.md` should stay under **500 lines and 5,000 tokens**; overflow goes into `references/`, `assets/`, or `scripts/` with explicit load triggers.
+- The most valuable skill content is project-specific knowledge the agent couldn't guess: conventions, schemas, non-obvious edge cases, tool choices.
+- LLM-generated skills from generic prompts produce unhelpful platitudes; ground authoring in real execution traces, runbooks, review comments, and VCS patches.
+- Gotchas sections — concrete "this defies reasonable assumptions" facts — belong in `SKILL.md` itself because the agent may not recognize when to load them from elsewhere.
+- Calibrate prescriptiveness per sub-task: freedom (+ explain *why*) for flexible work, exact commands for fragile/destructive ops.
+- Prefer a single default with an escape hatch over presenting multiple tools as equal options.
+- Teach generalizable procedures, not task-specific answers — but specific templates, constraints (e.g., "never output PII"), and tool instructions remain valuable.
+- Plan-validate-execute with a validator script catches errors before destructive operations and provides self-correction signal.
+- Iterate by reading execution traces, not just final outputs — flailing reveals vague instructions, off-task behavior reveals over-applicable rules.
 
 ## Notable Quotes
-> "A common pitfall in skill creation is asking an LLM to generate a skill without providing domain-specific context — relying solely on the LLM's general training knowledge. The result is vague, generic procedures."
+> "A data-pipeline skill synthesized from your team's actual incident reports and runbooks will outperform one synthesized from a generic 'data engineering best practices' article."
 
-> "Every token in your skill competes for the agent's attention with everything else in that window."
+> "Focus on what the agent *wouldn't* know without your skill... You don't need to explain what a PDF is, how HTTP works, or what a database migration does."
+
+> "Deciding what a skill should cover is like deciding what a function should do: you want it to encapsulate a coherent unit of work that composes well with other skills."
 
 > "A skill should teach the agent *how to approach* a class of problems, not *what to produce* for a specific instance."
-
-> "The highest-value content in many skills is a list of gotchas — environment-specific facts that defy reasonable assumptions."
 
 > "When an agent makes a mistake you have to correct, add the correction to the gotchas section."
 
 ## Related Entities
-[[Agent Skills]], [[SKILL.md Specification]], [[Progressive Disclosure]], [[Evaluating Skills]], [[Optimizing Skill Descriptions]], [[Using Scripts in Skills]], [[Context Window Management]], [[Anthropic Claude Skills]]
+[[Agent Skills]], [[SKILL.md Specification]], [[Progressive Disclosure]], [[Evaluating Skills]], [[Optimizing Skill Descriptions]], [[Using Scripts in Skills]], [[Context Engineering]]
 
 ## Tags
-agent-skills, skill-authoring, prompt-engineering, context-management, progressive-disclosure, llm-workflows, validation-loops, plan-validate-execute
+agent-skills, llm-engineering, prompt-engineering, context-engineering, skill-design, progressive-disclosure, validation-loops, documentation

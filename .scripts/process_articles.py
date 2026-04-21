@@ -124,17 +124,18 @@ This is a technical reference page, not a summary. Go deep.]
 
 NAV_JUNK = {
     'skip to main content', 'discord', 'search...', 'ctrl k', 'ask ai',
-    'navigation', 'table of contents', 'github', 'table of contents',
+    'navigation', 'table of contents', 'github',
 }
 NAV_PATTERNS = [
     re.compile(r'^\[Skip to', re.I),
-    re.compile(r'Agent Skills now has an official', re.I),
+    re.compile(r'^Agent Skills now has an official', re.I),
     re.compile(r'^\s*\*\s*\['),  # list items (nav)
     re.compile(r'^Agent Skills home page', re.I),
     re.compile(r'^\s*Search\.\.\.', re.I),
     re.compile(r'^\s*Ctrl K', re.I),
     re.compile(r'^\s*For skill creators', re.I),
     re.compile(r'^#+\s*For ', re.I),
+    re.compile(r'^\s*-\s*\[[^\]]+\]\(https://github\.com/agentskills'),  # GitHub stars nav
 ]
 
 
@@ -146,7 +147,18 @@ def is_nav_junk(line):
     # Short navigation lines
     if stripped.lower() in NAV_JUNK:
         return True
-    # Nav pattern matches
+    # Lines that are mostly URLs or bracket patterns (DOM-style nav)
+    if re.match(r'^\[.+?\]\(https?://', stripped) and not stripped.startswith('#'):
+        # Link-only lines are usually nav
+        if len(stripped) < 200 and not re.search(r'\.\s', stripped):
+            return True
+    # DOM-style links like [name\n\nnumber](url)
+    if re.match(r'^\[.+\n+\d+\]$', stripped) or re.match(r'^\[.+\]\[.+\]$', stripped):
+        return True
+    # List of links (common nav pattern)
+    if re.match(r'^\s*-\s*\[[^\]]+\]\(https?://', stripped):
+        return True
+    # Nav pattern matches (strip first)
     for pat in NAV_PATTERNS:
         if pat.match(stripped):
             return True
