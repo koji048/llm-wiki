@@ -10,7 +10,7 @@ tags: [meta]
 
 > Content catalog. Every wiki page listed under its type with a one-line summary.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-04-21 | Total pages: 14
+> Last updated: 2026-04-21 | Total pages: 15
 
 ## Entities
 <!-- Alphabetical within section -->
@@ -25,6 +25,7 @@ tags: [meta]
 - [[intro-to-large-language-models-zjkBMFhNj_g]] — Andrej Karpathy 1hr intro; LLM as two files, pre-training as lossy compression, fine-tuning, RLHF, tool use, LLM OS paradigm, security
 - [[llama-2]] — Meta's open-weight LLM family (7B–70B); Karpathy's two-files case study; 140GB params + 500-line C runfile
 - [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]] — Building micrograd from scratch; derivatives, chain rule, Value class, forward/backward pass, Neurons, Layers, MLP, MSE loss, gradient descent
+- [[microgpt]] — ~300-line dependency-free GPT in pure Python; character-level tokenizer, 1-layer transformer, custom autograd Value class, custom Adam optimizer; "everything else is just efficiency"
 - [[rlhf]] — Reinforcement Learning from Human Feedback; alignment for unverifiable domains; gameable reward models; vs. verifiable-domain RL (AlphaGo)
 - [[transformer]] — Neural network architecture (Vaswani et al. 2017) underlying all modern LLMs; self-attention, positional encoding, FFN/MLP layers
 

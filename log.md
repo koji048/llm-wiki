@@ -66,3 +66,10 @@ tags: [meta]
 - Added valid wikilinks to [[andrej-karpathy]] and [[rlhf]]
 - Type: concept (was summary)
 
+
+## [2026-04-21] create | microgpt entity page
+- Created entities/microgpt.md: full gist content as entity page
+- ~300-line dependency-free GPT in pure Python; covers Value class autograd, transformer architecture, custom Adam, training loop, inference
+- Added to index.md after micrograd entry, bumped page count to 15
+- Wikilinks to [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]], [[transformer]], [[andrej-karpathy]]
+
