@@ -1,5 +1,5 @@
 ---
-title: The spelled-out intro to neural networks and backpropagation: building micrograd
+title: "The spelled-out intro to neural networks and backpropagation: building micrograd"
 created: 2026-04-20
 updated: 2026-04-21
 type: entity
