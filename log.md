@@ -77,3 +77,10 @@
 - Created skills/ directory with 8 agent skill files (juno-research-agent.md through risk-bot.md + SKILL.md index)
 - Service status: active (running), llmEnabled=true, model=minimax/m2.7
 - Skills directory: /root/.openclaw/workspace/sim-agent-world-3d-scrum/skills/
+
+## [2026-04-21] feat | Skills wired into server.js + /api/model endpoint
+- Added getSkillSystemPrompt() + _loadSkills() — loads skills/*.md at startup, caches content, strips YAML frontmatter
+- buildLLMWorkerOutput() now uses getSkillSystemPrompt(agent) — agents get skill-file-based prompts
+- Added GET /api/model endpoint — returns provider, model, idleModel, llmEnabled, skillsLoaded
+- Skills loaded: 8/8 (juno, mika, cory, pip, finance, comms, analyst, risk)
+- Chrommium daemon deferred — Bun not installed on VPS

@@ -26,15 +26,30 @@ Root cause: the broken file was a more advanced version (with OpenRouter support
 
 | File | Change |
 |------|--------|
-| `server.js` | OpenRouter patch (buildLLMWorkerOutput + buildLLMIdleThought), Minimax model env vars |
-| `skills/` | New directory: 8 agent `.md` files + `SKILL.md` index |
+| `server.js` | OpenRouter support (buildLLMWorkerOutput + buildLLMIdleThought), Minimax models, getSkillSystemPrompt(), /api/model endpoint |
+| `skills/` | 8 agent `.md` files + `SKILL.md` index |
 
 ## Current State
 
 - **Service**: `tum-office-3d` active (running)
-- **LLM**: enabled, `minimax/m2.7` worker, `minimax/m2.5` idle
+- **LLM**: enabled, `minimax/m2.7` worker, `minimax/m2.5` idle, OpenRouter provider
 - **API key**: loaded from `/root/.openrouter_api_key`
-- **Skills**: loaded from `skills/` directory
+- **Skills**: 8/8 loaded from `skills/` directory (juno, mika, cory, pip, finance, comms, analyst, risk)
+- **Endpoints**: `/api/model` (GET) returns full LLM config + skillsLoaded count
+- **Deferred**: Chromium daemon — Bun not installed on VPS
+
+## API: GET /api/model
+
+```
+{
+  "ok": true,
+  "provider": "openrouter",
+  "model": "minimax/m2.7",
+  "idleModel": "minimax/m2.5",
+  "llmEnabled": true,
+  "skillsLoaded": 8
+}
+```
 
 ## Architecture Notes
 
