@@ -1,10 +1,10 @@
 ---
 title: The spelled-out intro to neural networks and backpropagation: building micrograd
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 type: entity
 tags: [video, neural-networks, backpropagation, micrograd, karpathy, tutorial, autograd, deep-learning, python]
-sources: [raw/transcripts/The spelled-out intro to neural networks and backpropagation： building micrograd [VMj-3S1tku0].en.txt]
+sources: []
 ---
 
 # The spelled-out intro to neural networks and backpropagation: building micrograd

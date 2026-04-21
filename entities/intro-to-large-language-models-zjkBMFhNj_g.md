@@ -1,10 +1,10 @@
 ---
 title: Intro to Large Language Models
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 type: entity
 tags: [video, llm, karpathy, talk, tutorial, training, fine-tuning, rlhf, tool-use, security]
-sources: [raw/transcripts/[1hr Talk] Intro to Large Language Models [zjkBMFhNj_g].en.txt]
+sources: []
 ---
 
 # Intro to Large Language Models

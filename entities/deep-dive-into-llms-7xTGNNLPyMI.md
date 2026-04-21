@@ -1,10 +1,10 @@
 ---
 title: Deep Dive into LLMs like ChatGPT
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 type: entity
 tags: [video, llm, karpathy, tutorial, deep-learning, transformer, rlhf]
-sources: [raw/transcripts/Deep Dive into LLMs like ChatGPT [7xTGNNLPyMI].en.txt]
+sources: []
 ---
 
 # Deep Dive into LLMs like ChatGPT

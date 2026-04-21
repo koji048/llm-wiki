@@ -1,10 +1,10 @@
 ---
 title: How I use LLMs
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 type: entity
 tags: [video, llm, karpathy, practical, productivity]
-sources: [raw/transcripts/How I use LLMs [EWvNQjAaOHw].en.txt]
+sources: []
 ---
 
 # How I use LLMs
