@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 LLM Wiki article processor — generates wiki entity pages from scraped markdown.
-Uses Opus 4.7. Reads raw/articles/*.md → writes entities/*.md.
+Uses Opus 4.7. Reads raw/articles/*.md -> writes entities/*.md.
 """
 import subprocess, json, os, sys, tempfile, re, time
 from datetime import date
@@ -11,6 +11,7 @@ os.chdir(WORK_DIR)
 
 OR_KEY = open('/root/.openrouter_api_key').read().strip()
 TODAY = date.today().isoformat()
+
 
 def call_llm(system_msg, user_msg, model='anthropic/claude-opus-4.7', timeout=600, retries=2):
     payload = {
@@ -79,7 +80,7 @@ the Andrej Karpathy LLM Wiki format. Every entry must be a self-contained refere
 Read the source article carefully. Synthesize its key ideas, claims, and technical details
 into a thorough wiki entity page.
 
-OUTPUT FORMAT — produce EXACTLY this structure:
+OUTPUT FORMAT -- produce EXACTLY this structure:
 
 ---
 title: "EXTRACTED TITLE"
@@ -93,7 +94,7 @@ sources: [raw/articles/FILENAME.md]
 # EXTRACTED TITLE
 
 ## Summary
-[2-4 paragraphs. Be specific — name techniques, papers, tools, companies, numbers.
+[2-4 paragraphs. Be specific -- name techniques, papers, tools, companies, numbers.
 This is a technical reference page, not a summary. Go deep.]
 
 ## Key Concepts
@@ -110,79 +111,52 @@ This is a technical reference page, not a summary. Go deep.]
 - [Bullet 6+ if important]
 
 ## Notable Quotes
-> "[Quote 1 — notable claim or definition]"
+> "[Quote 1 -- notable claim or definition]"
 > "[Quote 2]"
 > "[Quote 3]"
 
 ## Related Entities
 [[Entity Name 1]], [[Entity Name 2]], [[Entity Name 3]], [[Entity Name 4]]
-
-## Tags
-[suggest 4-8 tags for this content]
 """
 
 
-NAV_JUNK = {
-    'skip to main content', 'discord', 'search...', 'ctrl k', 'ask ai',
-    'navigation', 'table of contents', 'github',
-}
-NAV_PATTERNS = [
-    re.compile(r'^\[Skip to', re.I),
-    re.compile(r'^Agent Skills now has an official', re.I),
-    re.compile(r'^\s*\*\s*\['),  # list items (nav)
-    re.compile(r'^Agent Skills home page', re.I),
-    re.compile(r'^\s*Search\.\.\.', re.I),
-    re.compile(r'^\s*Ctrl K', re.I),
-    re.compile(r'^\s*For skill creators', re.I),
-    re.compile(r'^#+\s*For ', re.I),
-    re.compile(r'^\s*-\s*\[[^\]]+\]\(https://github\.com/agentskills'),  # GitHub stars nav
-]
-
-
-def is_nav_junk(line):
-    """Skip nav/junk lines that aren't real article content."""
-    stripped = line.strip()
-    if not stripped:
+def is_garbage_title(title):
+    """Return True if title looks like nav junk, not a real article title."""
+    if not title:
         return True
-    # Short navigation lines
-    if stripped.lower() in NAV_JUNK:
+    low = title.lower()
+    if '](http' in title or title.endswith(')') or '://' in title:
         return True
-    # Lines that are mostly URLs or bracket patterns (DOM-style nav)
-    if re.match(r'^\[.+?\]\(https?://', stripped) and not stripped.startswith('#'):
-        # Link-only lines are usually nav
-        if len(stripped) < 200 and not re.search(r'\.\s', stripped):
-            return True
-    # DOM-style links like [name\n\nnumber](url)
-    if re.match(r'^\[.+\n+\d+\]$', stripped) or re.match(r'^\[.+\]\[.+\]$', stripped):
+    if len(title) < 8:
         return True
-    # List of links (common nav pattern)
-    if re.match(r'^\s*-\s*\[[^\]]+\]\(https?://', stripped):
+    skip_starts = (
+        'agent skills now', '[skip to', 'for skill creators',
+        'table of contents', 'home page', 'ask ai', 'navigation',
+        'announcement', 'discord', 'github stars',
+    )
+    if any(low.startswith(s) for s in skip_starts):
         return True
-    # Nav pattern matches (strip first)
-    for pat in NAV_PATTERNS:
-        if pat.match(stripped):
-            return True
     return False
 
 
 def extract_title(content):
     """Pull title from frontmatter or first real article heading."""
-    m = re.search(r'^title:\s*["\']?(.*?)["\']?\s*$', content, re.MULTILINE)
-    if m and m.group(1).strip():
-        return m.group(1).strip()
-    # Find the first real H1 heading after nav junk
+    m = re.search(r'^title:\s*["\x27]?(.*?)["\x27]?\s*$', content, re.MULTILINE)
+    if m:
+        raw = m.group(1).strip()
+        cleaned = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', raw).strip()
+        if not is_garbage_title(cleaned):
+            return cleaned
     for line in content.split('\n'):
-        if is_nav_junk(line):
+        stripped = line.strip()
+        if not stripped or stripped.startswith('---'):
             continue
-        m = re.match(r'^(#{1,2})\s+(.+)$', line.strip())
+        m = re.match(r'^(#{1,2})\s+(.+)$', stripped)
         if m and len(m.group(1)) <= 2:
-            title = m.group(2).strip()
-            # Clean markdown links
-            title = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', title)
-            title = title.strip()
-            if len(title) > 4:
+            title = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', m.group(2)).strip()
+            if not is_garbage_title(title):
                 return title
-    return 'Untitled'
+    return None  # use URL fallback
 
 
 def extract_source_url(content):
@@ -200,23 +174,14 @@ def extract_body(content):
     return content
 
 
-def slugify(title, url=''):
-    """Create a short slug from title or URL."""
-    # Use URL slug if title is generic
-    if 'untitled' in title.lower() or len(title) < 5:
-        if url:
-            u = re.sub(r'https?://', '', url)
-            u = re.sub(r'[^\w]', '-', u)
-            u = re.sub(r'-+', '-', u)
-            return u.strip('-')[:60]
-    s = re.sub(r'[^\w\s\-]', '', title.lower())
-    s = re.sub(r'[\s]+', '-', s)
-    s = re.sub(r'-+', '-', s)
-    # Remove common stop words for brevity
-    stop = {'the', 'a', 'an', 'of', 'to', 'for', 'in', 'on', 'at', 'and', 'or', 'is', 'it', 'with'}
-    parts = [p for p in s.split('-') if p and p not in stop]
-    slug = '-'.join(parts)[:60]
-    return slug or 'article'
+def slugify_fallback(url):
+    """Create slug from URL path."""
+    u = re.sub(r'https?://', '', url)
+    parts = [p for p in re.split(r'[/\-_.?&=]', u) if p]
+    # Take last 3 meaningful parts
+    slug = '-'.join(parts[-3:]) if parts else 'article'
+    slug = re.sub(r'[^a-z0-9\-]', '', slug.lower())
+    return slug[:60]
 
 
 def main():
@@ -233,29 +198,38 @@ def main():
 
     for fname in articles:
         article_path = f'raw/articles/{fname}'
-        body = extract_body(open(article_path).read())
-        title = extract_title(open(article_path).read())
-        source_url = extract_source_url(open(article_path).read())
-        slug = slugify(title, source_url)
+        raw_content = open(article_path).read()
+        body = extract_body(raw_content)
+        source_url = extract_source_url(raw_content)
+        title = extract_title(raw_content)
+
+        # Fallback title from URL
+        if title is None or is_garbage_title(title):
+            title = slugify_fallback(source_url).replace('-', ' ').title()
+            print(f'  Title fallback used: {title[:60]}')
+
+        slug = slugify_fallback(source_url)
         entity_path = f'entities/{slug}.md'
 
-        # Avoid overwriting existing entities
-        if os.path.exists(entity_path):
-            slug = f'{slug}-{date.today().strftime("%Y%m%d")}'
+        # Avoid overwriting
+        base_slug = slug
+        counter = 1
+        while os.path.exists(entity_path):
+            slug = f'{base_slug}-{counter}'
             entity_path = f'entities/{slug}.md'
+            counter += 1
 
         print(f'\nProcessing: {title}')
         print(f'  Source: {source_url}')
         print(f'  Body: {len(body):,} chars')
 
-        # For very long articles, chunk
         MAX_SINGLE = 55000
         if len(body) <= MAX_SINGLE:
             user_msg = f"""Source article: {source_url}
 Original file: raw/articles/{fname}
 
 Create a comprehensive wiki entity page for this article. Be thorough and technically
-precise — this is a reference page, not a synopsis.
+precise -- this is a reference page, not a synopsis.
 
 --- ARTICLE CONTENT ---
 
@@ -272,13 +246,11 @@ Extract all key technical details, claims, numbers, tools, and concepts.
                 print(f'  Created: {entity_path} ({len(summary):,} chars)')
                 os.remove(article_path)
             else:
-                print(f'  FAILED — no summary generated')
+                print(f'  FAILED -- no summary generated')
 
         else:
-            # Chunk long articles
-            print(f'  Long article — chunking...')
+            print(f'  Long article -- chunking...')
             chunks = []
-            total = 0
             for i in range(0, len(body), MAX_SINGLE):
                 chunk = body[i:i+MAX_SINGLE]
                 n = i // MAX_SINGLE + 1
@@ -292,14 +264,13 @@ Write only the summary, no preamble.""",
                 )
                 if section:
                     chunks.append(f'## Section {n}\n{section}')
-                    total += len(section)
                 else:
                     print(f'  WARNING: Chunk {n} returned empty')
 
             if chunks:
                 synthesis = call_llm(
                     """You are a wiki architect. You have section summaries of an article.
-Synthesize them into a single wiki entity page. Use all the information — do not omit
+Synthesize them into a single wiki entity page. Use all the information -- do not omit
 important details. Be specific: name tools, techniques, numbers, companies.""",
                     f'Article title: {title}\nSource: {source_url}\n\n' + '\n\n'.join(chunks),
                     timeout=900
@@ -310,7 +281,7 @@ important details. Be specific: name tools, techniques, numbers, companies.""",
                     print(f'  Created: {entity_path} ({len(synthesis):,} chars)')
                     os.remove(article_path)
                 else:
-                    print(f'  FAILED — synthesis returned empty')
+                    print(f'  FAILED -- synthesis returned empty')
 
     ts = subprocess.run(['date', '-u', '+%Y%m%dT%H%M%SZ'],
                        capture_output=True, text=True).stdout.strip()
