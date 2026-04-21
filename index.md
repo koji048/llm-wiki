@@ -19,6 +19,7 @@ tags: [meta]
 - [[anthropic-agent-skills]] — Anthropic open standard for AI agent skills; progressive disclosure, 16 skill types, skill-creator iterative workflow, best practices; compared to Hermes Agent and GStack
 - [[deep-dive-into-llms-7xTGNNLPyMI]] — Comprehensive deep dive into LLMs like ChatGPT (3.5hr); tokenization, Transformer, pre-training, SFT, RLHF, tool use, Thinking models
 - [[deepseek-r1-reasoning-model]] — DeepSeek's reasoning model; pioneered RL-based thinking model methodology; emergent behaviors, AIME accuracy scaling with response length
+- [[garry-gstack]] — Garry Tan AI software factory on Claude Code; 23 specialist skills (/review, /ship, /qa, /cso, /freeze, etc.), persistent Chromium daemon ~100ms/command, ~810x productivity gain; MIT license
 - [[fineweb]] — High-quality pre-training dataset (~44TB, 15T tokens) derived from Common Crawl with aggressive URL/language filtering
 - [[gpt-4]] — OpenAI's 4th-gen LLM; multimodal, ~100k token vocabulary via cl100k_base, RLHF-aligned
 - [[how-i-use-llms-EWvNQjAaOHw]] — Practical guide to using LLMs (2hr); context window, search tools, Python execution, custom GPTs, voice I/O, image generation
