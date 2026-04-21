@@ -58,3 +58,11 @@ tags: [meta]
 - Fixed 8 stub files: replaced all dead wikilinks (deleted .en.md files, non-existent stubs)
 - FineWeb: removed accidental Chinese mixed-language text
 - All wikilinks: bare format (no [[entities/...]] prefix), all resolve to existing files
+
+## [2026-04-21] update | karpathy-llm-wiki concept page expanded
+- Rewrote concepts/karpathy-llm-wiki.md: full gist content captured
+- Sections: Core Insight, Three Layers, Operations (Ingest/Query/Lint), Index and Log, Why It Works, Optional Tools, Implementation Notes
+- Removed broken [[llm-wiki-skill]] and [[obsidian]] wikilinks
+- Added valid wikilinks to [[andrej-karpathy]] and [[rlhf]]
+- Type: concept (was summary)
+
