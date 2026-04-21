@@ -68,3 +68,12 @@
 - intro-to-large-language-models: added token prediction, tokenization, positional encoding, pre-training, alignment, emergent behaviors, limitations
 - Created 29 concept stubs: transformer, attention, tokenizer, RLHF, SFT, pre-training, alignment, emergent-behaviors, context-window, prompting, chain-of-thought, custom-gpts, multimodal, reasoning-models, next-token-prediction, positional-encoding, RoPE, ALiBi, PPO, DPO, backpropagation, chain-rule, gradient-descent, loss-function, automatic-differentiation, activation-function, neural-network, micrograd, PyTorch
 - Updated index.md (total pages: 49)
+
+## [2026-04-21] fix | Tum Office runtime restored + OpenRouter/Minimax switch
+- Restored from backup (server.js.bak.1775955268, 1215 lines) — syntax error in broken file was structural (missing handler code)
+- Added OpenRouter support to backup: LLM_PROVIDER detection, baseUrl switching, OpenRouter headers
+- Switched model from gpt-4.1-mini/nano → minimax/m2.7 (worker) + minimax/m2.5 (idle)
+- Fixed both buildLLMWorkerOutput() and buildLLMIdleThought() endpoints
+- Created skills/ directory with 8 agent skill files (juno-research-agent.md through risk-bot.md + SKILL.md index)
+- Service status: active (running), llmEnabled=true, model=minimax/m2.7
+- Skills directory: /root/.openclaw/workspace/sim-agent-world-3d-scrum/skills/
