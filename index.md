@@ -1,7 +1,7 @@
 ---
 title: Wiki Index
 created: 2026-04-19
-updated: 2026-04-21
+updated: 2026-04-23
 type: meta
 tags: [meta]
 ---
@@ -10,7 +10,7 @@ tags: [meta]
 
 > Content catalog. Every wiki page listed under its type with a one-line summary.
 > Read this first to find relevant pages for any query.
-> Last updated: 2026-04-21 | Total pages: 49
+> Last updated: 2026-04-23 | Total pages: 51
 
 ## Entities
 <!-- Alphabetical within section -->
@@ -28,6 +28,7 @@ tags: [meta]
 - [[llama-2]] — Meta's open-weight LLM family (7B–70B); Karpathy's two-files case study; 140GB params + 500-line C runfile
 - [[micrograd-neural-networks-backpropagation-VMj-3S1tku0]] — Building micrograd from scratch; derivatives, chain rule, Value class, forward/backward pass, Neurons, Layers, MLP, MSE loss, gradient descent
 - [[microgpt]] — ~300-line dependency-free GPT in pure Python; character-level tokenizer, 1-layer transformer, custom autograd Value class, custom Adam optimizer; "everything else is just efficiency"
+- [[pixel-agents]] — VS Code extension (6.9k stars) rendering AI agents as pixel characters; observational JSONL parsing, dual-mode status detection (hooks + heuristic), BFS pathfinding, sub-agent lifecycle, asset manifest system; dual-mode detection directly relevant to Tum Office
 - [[rlhf]] — Reinforcement Learning from Human Feedback; alignment for unverifiable domains; gameable reward models; vs. verifiable-domain RL (AlphaGo)
 - [[transformer]] — Neural network architecture (Vaswani et al. 2017) underlying all modern LLMs; self-attention, positional encoding, FFN/MLP layers
 
@@ -65,6 +66,7 @@ tags: [meta]
 
 ### Meta/Pattern Concepts
 - [[karpathy-llm-wiki]] — karpathy gist: LLM Wiki pattern, wiki as persistent compounding artifact
+- [[karpathy-guidelines]] — Four behavioral principles for LLM coding: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution; source forrestchang/andrej-karpathy-skills
 - [[tum-office-runtime-fix]] — Tum Office runtime port conflict fix: systemd services fighting over port 19011, OpenRouter migration, correct workspace path
 
 ## Comparisons

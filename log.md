@@ -68,3 +68,11 @@
 - intro-to-large-language-models: added token prediction, tokenization, positional encoding, pre-training, alignment, emergent behaviors, limitations
 - Created 29 concept stubs: transformer, attention, tokenizer, RLHF, SFT, pre-training, alignment, emergent-behaviors, context-window, prompting, chain-of-thought, custom-gpts, multimodal, reasoning-models, next-token-prediction, positional-encoding, RoPE, ALiBi, PPO, DPO, backpropagation, chain-rule, gradient-descent, loss-function, automatic-differentiation, activation-function, neural-network, micrograd, PyTorch
 - Updated index.md (total pages: 49)
+
+## [2026-04-23] create | karpathy-guidelines concept
+- Created concepts/karpathy-guidelines.md — four behavioral principles for LLM coding (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution)
+- Source: forrestchang/andrej-karpathy-skills repo (karpathy-inspired guidelines, 76.7k stars)
+- Linked to karpathy-llm-wiki, anthropic-agent-skills, tum-office
+- Added to index.md (Meta/Pattern Concepts section)
+- Also filed: entities/pixel-agents.md (from previous session 20260423)
+- Updated total pages: 51
