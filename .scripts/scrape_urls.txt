@@ -15,3 +15,18 @@ https://github.com/garrytan/gstack
 
 # LLM automation / agents
 https://github.com/anthropics/skills
+
+# More agent skills pages
+https://agentskills.io/skill-creation/progressive-disclosure
+https://agentskills.io/skill-creation/evaluating-skills
+https://agentskills.io/using-scripts-in-skills
+https://agentskills.io/context-engineering
+
+# Anthropic research
+https://www.anthropic.com/research
+https://www.anthropic.com/research/building-effective-agents
+
+# Grounding / RAG
+https://docs.rosetta.ai/grounding
+https://citation-file-api.readthedocs.io/en/latest/
+https://www.inference.com
